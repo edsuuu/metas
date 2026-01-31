@@ -1,13 +1,31 @@
 import { useState, FormEventHandler, useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
+import PasswordChecklist from '@/Components/PasswordChecklist';
+
+declare function route(name: string, params?: any, absolute?: boolean): string;
 
 export default function LoginRegister({ status, canResetPassword, type = 'login', socialUser }: { status?: string, canResetPassword?: boolean, type?: 'login' | 'register', socialUser?: any }) {
     const [isLogin, setIsLogin] = useState(type === 'login' && !socialUser);
 
+    const generateSecurePassword = () => {
+        const length = 16;
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+        let retVal = "";
+        // Ensure at least one of each required type
+        retVal += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)];
+        retVal += "0123456789"[Math.floor(Math.random() * 10)];
+        retVal += "!@#$%^&*()_+"[Math.floor(Math.random() * 12)];
+        
+        for (let i = retVal.length; i < length; ++i) {
+            retVal += charset.charAt(Math.floor(Math.random() * charset.length));
+        }
+        return retVal.split('').sort(() => 0.5 - Math.random()).join('');
+    };
+
     const { data, setData, post, processing, errors, reset } = useForm({
         nickname: socialUser?.name ? socialUser.name.toLowerCase().replace(/\s+/g, '_') : '',
         email: socialUser?.email || '',
-        password: socialUser ? Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8) : '', // Generate random password for social login
+        password: socialUser ? generateSecurePassword() : '',
         remember: false,
         name: '', 
         password_confirmation: '',
@@ -65,7 +83,7 @@ export default function LoginRegister({ status, canResetPassword, type = 'login'
                     <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                         <div className="size-8 text-primary">
                             <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V44Z" fillRule="evenodd"></path>
+                                <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
                             </svg>
                         </div>
                         <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Everest</h2>
@@ -135,8 +153,12 @@ export default function LoginRegister({ status, canResetPassword, type = 'login'
                                                 placeholder="ex: alpinista_urbano"
                                                 value={data.nickname}
                                                 onChange={(e) => {
-                                                    setData('nickname', e.target.value);
-                                                    setData('name', e.target.value); // Sync name
+                                                    const val = e.target.value;
+                                                    setData((prev: any) => ({
+                                                        ...prev,
+                                                        nickname: val,
+                                                        name: val
+                                                    }));
                                                 }}
                                             />
                                         </div>
@@ -189,6 +211,7 @@ export default function LoginRegister({ status, canResetPassword, type = 'login'
                                                     }}
                                                 />
                                             </div>
+                                            {!isLogin && <div className="mt-4"><PasswordChecklist password={data.password} /></div>}
                                             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                                         </div>
                                     </>

@@ -1,39 +1,21 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, usePage, Link } from '@inertiajs/react';
+import PublicNavbar from '@/Components/PublicNavbar';
+import Footer from '@/Components/Footer';
+import { PageProps } from '@/types';
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
 
 export default function Pricing() {
+    const { auth } = usePage<PageProps>().props;
+
     return (
-        <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300 font-display">
+        <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300 font-display min-h-screen flex flex-col">
             <Head title="Planos e Preços Individuais - Everest" />
 
-            <header className="sticky top-0 z-50 w-full border-b border-solid border-[#dbe6e1] bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 md:px-20 lg:px-40 py-3">
-                <div className="max-w-[1200px] mx-auto flex items-center justify-between">
-                    <Link href={route('home')} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                        <div className="size-8 text-primary">
-                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Everest</h2>
-                    </Link>
-                    <nav className="hidden md:flex items-center gap-9">
-                        <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('home') + '#features'}>Funcionalidades</Link>
-                        <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('pricing')}>Planos</Link>
-                    </nav>
-                    <div className="flex gap-3">
-                        <Link href={route('login')} className="hidden sm:flex min-w-[84px] cursor-pointer items-center justify-center rounded-full h-10 px-5 bg-background-light dark:bg-gray-800 text-[#111815] dark:text-white text-sm font-bold border border-[#dbe6e1] dark:border-gray-700">
-                            Login
-                        </Link>
-                        <Link href={route('register')} className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-full h-10 px-5 bg-primary text-[#111815] text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-                            Teste Grátis
-                        </Link>
-                    </div>
-                </div>
-            </header>
+            <PublicNavbar auth={auth} />
 
-            <main className="flex flex-col items-center">
+            <main className="flex-1 flex flex-col items-center">
                 <section className="w-full max-w-[1200px] px-4 md:px-10 py-16 md:py-24" id="pricing">
                     <div className="flex flex-col gap-4 text-center mb-16">
                         <h1 className="text-[#111815] dark:text-white text-4xl md:text-5xl font-black tracking-tight">Planos e Preços <span className="text-primary">Individuais</span></h1>
@@ -184,30 +166,7 @@ export default function Pricing() {
                 </section>
             </main>
 
-            <footer className="w-full bg-white dark:bg-background-dark border-t border-[#dbe6e1] dark:border-gray-800 py-12 px-4 md:px-20 lg:px-40">
-                <div className="max-w-[1200px] mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="size-6 text-primary">
-                                <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                    <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
-                                </svg>
-                            </div>
-                            <h2 className="text-[#111815] dark:text-white text-lg font-bold">Everest</h2>
-                        </div>
-                        <p className="text-gray-500 text-sm">A sua jornada individual rumo ao auge.</p>
-                    </div>
-                    <div className="flex gap-8 text-sm font-medium text-gray-600 dark:text-gray-400">
-                        <a className="hover:text-primary" href="#">Privacidade</a>
-                        <a className="hover:text-primary" href="#">Termos</a>
-                        <a className="hover:text-primary" href="#">Blog</a>
-                        <a className="hover:text-primary" href="#">Contato</a>
-                    </div>
-                </div>
-                <div className="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-gray-100 dark:border-gray-800 text-center">
-                    <p className="text-xs text-gray-400">© 2024 Everest. Todos os direitos reservados. Foco no Usuário Individual.</p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

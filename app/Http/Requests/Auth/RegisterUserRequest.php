@@ -15,10 +15,19 @@ class RegisterUserRequest extends FormRequest
 
     public function rules(): array
     {
+        $passwordRules = ['required', 'confirmed'];
+        
+        // Relax rules for social registration as the password is generated internally
+        if (!session()->has('social_user')) {
+             $passwordRules[] = Rules\Password::defaults();
+        } else {
+             $passwordRules[] = 'min:8';
+        }
+
         return [
             'nickname' => 'required|string|max:255|unique:'.User::class,
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'email' => 'required|string|lowercase|email:rfc,dns|max:255|unique:'.User::class,
+            'password' => $passwordRules,
         ];
     }
 

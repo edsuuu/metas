@@ -12,7 +12,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::prefix('register')->group(function () {
+    Route::prefix('cadastro')->group(function () {
         Route::get('/', [RegisteredUserController::class, 'create'])->name('register');
         Route::post('/', [RegisteredUserController::class, 'store']);
     });
@@ -22,36 +22,36 @@ Route::middleware('guest')->group(function () {
         Route::post('/', [AuthenticatedSessionController::class, 'store']);
     });
 
-    Route::prefix('forgot-password')->group(function () {
+    Route::prefix('esqueci-minha-senha')->group(function () {
         Route::get('/', [PasswordResetLinkController::class, 'create'])->name('password.request');
         Route::post('/', [PasswordResetLinkController::class, 'store'])->name('password.email');
     });
 
-    Route::prefix('reset-password')->group(function () {
+    Route::prefix('redefinir-senha')->group(function () {
         Route::get('/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
         Route::post('/', [NewPasswordController::class, 'store'])->name('password.store');
     });
 });
 
 Route::middleware('auth')->group(function () {
-    Route::prefix('verify-email')->group(function () {
+    Route::prefix('verificar-email')->group(function () {
         Route::get('/', EmailVerificationPromptController::class)->name('verification.notice');
         Route::get('/{id}/{hash}', VerifyEmailController::class)
             ->middleware(['signed', 'throttle:6,1'])
             ->name('verification.verify');
     });
 
-    Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+    Route::post('email/notificacao-de-verificacao', [EmailVerificationNotificationController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('verification.send');
 
-    Route::prefix('confirm-password')->group(function () {
+    Route::prefix('confirmar-senha')->group(function () {
         Route::get('/', [ConfirmablePasswordController::class, 'show'])->name('password.confirm');
         Route::post('/', [ConfirmablePasswordController::class, 'store']);
     });
 
-    Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+    Route::put('senha', [PasswordController::class, 'update'])->name('password.update');
 
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
+    Route::post('sair', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

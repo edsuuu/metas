@@ -20,14 +20,20 @@ export default function LegalNavbar({ children }: LegalNavbarProps) {
                     <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Everest</h2>
                 </Link>
                 
+                <nav className="hidden md:flex items-center gap-9">
+                    <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('home') + '#features'}>Funcionalidades</Link>
+                    <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('pricing')}>Planos</Link>
+                    <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('blog')}>Blog</Link>
+                    <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('support')}>Contato</Link>
+                </nav>
+
                 {children ? (
                     <div className="flex items-center gap-6">
                         {children}
                     </div>
                 ) : (
                     <div className="flex items-center gap-6">
-                        <Link className="hidden md:block text-sm font-medium text-gray-500 hover:text-primary transition-colors" href="/support">Suporte</Link>
-                        <Link className="text-sm font-bold text-primary px-4 py-2 rounded-full border border-primary hover:bg-primary hover:text-white transition-all" href="/dashboard">Ir para o App</Link>
+                        <Link className="text-sm font-bold text-primary px-4 py-2 rounded-full border border-primary hover:bg-primary hover:text-white transition-all" href={route('dashboard')}>Ir para o App</Link>
                     </div>
                 )}
             </div>

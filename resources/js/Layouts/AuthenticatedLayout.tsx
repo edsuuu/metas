@@ -1,7 +1,10 @@
-import { useState, PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import { User } from '@/types';
 import Dropdown from '@/Components/Dropdown';
+import Footer from '@/Components/Footer';
+
+declare function route(name?: string, params?: any, absolute?: boolean): any;
 
 export default function Authenticated({ header, children }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props.auth.user as User;
@@ -32,7 +35,6 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                                 href={route('goals.create')} 
                                 className={`text-sm font-bold transition-colors ${route().current('goals.*') ? 'text-[#111815] dark:text-white' : 'text-gray-400 hover:text-primary'}`}
                             >
-                                Metas
                                 Metas
                             </Link>
                             <Link 
@@ -92,9 +94,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                 {children}
             </main>
             
-            <footer className="w-full py-8 text-center border-t border-[#dbe6e1] dark:border-gray-800 mt-auto">
-                <p className="text-xs text-gray-400">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
-            </footer>
+            <Footer />
         </div>
     );
 }

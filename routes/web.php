@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\SupportTicketController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,6 +14,24 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+
+Route::get('/planos', function () {
+    return Inertia::render('Pricing');
+})->name('pricing');
+
+Route::get('/privacidade', function () {
+    return Inertia::render('Legal/DataCollection');
+})->name('privacy');
+
+Route::get('/blog', function () {
+    return Inertia::render('Blog/Index');
+})->name('blog');
+
+Route::get('/suporte', function () {
+    return Inertia::render('Support/Index');
+})->name('support');
+
+
 // Social Auth
 Route::prefix('oauth2/google')->group(function () {
     Route::get('/', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
@@ -20,45 +39,40 @@ Route::prefix('oauth2/google')->group(function () {
 });
 
 // Legal & Support Pages
-Route::prefix('terms')->group(function () {
+Route::prefix('termos')->group(function () {
     Route::get('/', function () {
         return Inertia::render('Legal/Terms');
     })->name('terms');
 
-    Route::get('/intro', function () {
+    Route::get('/introducao', function () {
         return Inertia::render(component: 'Legal/TermsIntro');
     })->name('terms.intro');
 
-    Route::get('/data-collection', function () {
+    Route::get('/coleta-de-dados', function () {
         return Inertia::render('Legal/DataCollection');
     })->name('terms.data-collection');
 
-    Route::get('/security', function () {
+    Route::get('/seguranca', function () {
         return Inertia::render('Legal/Security');
     })->name('terms.security');
 
-    Route::get('/responsibilities', function () {
+    Route::get('/responsabilidades', function () {
         return Inertia::render('Legal/Responsibilities');
     })->name('terms.responsibilities');
 });
 
-Route::get('/plans', function () {
-    return Inertia::render('Pricing');
-})->name('pricing');
 
-Route::get('/support', function () {
-    return Inertia::render('Support/Index');
-})->name('support');
+Route::prefix('suporte')->name('support.')->group(function () {
+    Route::get('/meus-chamados', [SupportTicketController::class, 'myTickets'])->name('my-tickets');
+    Route::post('/solicitar-acesso', [SupportTicketController::class, 'requestAccess'])->name('access.request');
+    Route::get('/verificar-acesso', [SupportTicketController::class, 'verifyView'])->name('verify.view');
+    Route::post('/verificar-acesso', [SupportTicketController::class, 'verifyCheck'])->name('verify.check');
 
-Route::post('/support/ticket', [App\Http\Controllers\SupportTicketController::class, 'store'])->name('support.ticket.store');
-
-Route::prefix('support')->name('support.')->group(function () {
-    Route::get('/my-tickets', [App\Http\Controllers\SupportTicketController::class, 'myTickets'])->name('my-tickets');
-    Route::post('/access-request', [App\Http\Controllers\SupportTicketController::class, 'requestAccess'])->name('access.request');
-    Route::get('/verify-access', [App\Http\Controllers\SupportTicketController::class, 'verifyView'])->name('verify.view');
-    Route::post('/verify-access', [App\Http\Controllers\SupportTicketController::class, 'verifyCheck'])->name('verify.check');
-    Route::get('/ticket/{id}', [App\Http\Controllers\SupportTicketController::class, 'show'])->name('ticket.show');
-    Route::post('/ticket/{id}/reply', [App\Http\Controllers\SupportTicketController::class, 'reply'])->name('ticket.reply');
+    Route::prefix('chamado')->name('ticket.')->group(function () {
+        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
+        Route::get('/{id}', [SupportTicketController::class, 'show'])->name('show');
+        Route::post('/{id}/responder', [SupportTicketController::class, 'reply'])->name('reply');
+    });
 });
 
 Route::middleware('auth')->group(function () {
@@ -70,13 +84,15 @@ Route::middleware('auth')->group(function () {
         Route::resource('goals', GoalController::class);
     });
 
-    Route::get('/achievements', function () {
+    Route::get('/conquistas', function () {
         return Inertia::render('Achievements');
     })->name('achievements');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::prefix('perfil')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
 });
 
 require __DIR__.'/auth.php';

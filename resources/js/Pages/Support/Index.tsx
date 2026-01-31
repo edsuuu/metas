@@ -1,6 +1,7 @@
 import React, { FormEventHandler } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import LegalNavbar from '@/Components/LegalNavbar';
+import Footer from '@/Components/Footer';
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
 
@@ -203,24 +204,7 @@ export default function SupportIndex() {
                 </section>
             </main>
 
-            <footer className="w-full py-12 px-4 bg-background-light dark:bg-background-dark">
-                <div className="max-w-[1200px] mx-auto text-center">
-                    <div className="flex items-center justify-center gap-2 mb-6">
-                        <div className="size-6 text-primary">
-                            <svg fill="currentColor" viewBox="0 0 48 48">
-                                <path d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V44Z"></path>
-                            </svg>
-                        </div>
-                        <span className="font-bold text-[#111815] dark:text-white">Everest</span>
-                    </div>
-                    <p className="text-xs text-gray-400 mb-4">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
-                    <div className="flex justify-center gap-6">
-                        <Link className="text-xs text-gray-500 hover:text-primary underline" href="/terms">Privacidade</Link>
-                        <Link className="text-xs text-gray-500 hover:text-primary underline" href="/terms">Termos</Link>
-                        <Link className="text-xs text-gray-500 hover:text-primary underline" href="/support">Status do Sistema</Link>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

@@ -1,5 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react';
 import { FormEventHandler, useEffect } from 'react';
+import PasswordChecklist from '@/Components/PasswordChecklist';
+
+declare function route(name: string, params?: any, absolute?: boolean): string;
 
 export default function ResetPassword({ token, email }: { token: string, email: string }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -34,9 +37,9 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                         </div>
                         <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Everest</h2>
                     </div>
-                    <Link className="text-sm font-medium text-gray-500 hover:text-primary transition-colors flex items-center gap-1" href={route('login')}>
+                    <Link className="text-sm font-medium text-gray-500 hover:text-primary transition-colors flex items-center gap-1" href={route('home')}>
                         <span className="material-symbols-outlined text-base">arrow_back</span>
-                        Voltar para o login
+                        Voltar para o início
                     </Link>
                 </div>
             </header>
@@ -59,7 +62,7 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                                     <input 
                                         id="email" 
                                         type="email" 
-                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all" 
+                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all grayscale opacity-70" 
                                         value={data.email}
                                         onChange={(e) => setData('email', e.target.value)}
                                         required
@@ -83,6 +86,7 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                                         value={data.password}
                                         onChange={(e) => setData('password', e.target.value)}
                                         required 
+                                        autoFocus
                                     />
                                 </div>
                                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
@@ -107,23 +111,8 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                                 {errors.password_confirmation && <p className="text-red-500 text-xs mt-1">{errors.password_confirmation}</p>}
                             </div>
 
-                            <div className="bg-gray-50 dark:bg-gray-900/40 p-4 rounded-2xl border border-[#dbe6e1] dark:border-gray-700/50">
-                                <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Requisitos de senha:</p>
-                                <ul className="space-y-2">
-                                    <li className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                                        <span className="material-symbols-outlined text-primary text-sm">check_circle</span>
-                                        No mínimo 8 caracteres
-                                    </li>
-                                    <li className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                                        <span className="material-symbols-outlined text-sm">radio_button_unchecked</span>
-                                        Pelo menos um número ou símbolo
-                                    </li>
-                                    <li className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
-                                        <span className="material-symbols-outlined text-sm">radio_button_unchecked</span>
-                                        Letras maiúsculas e minúsculas
-                                    </li>
-                                </ul>
-                            </div>
+                            <PasswordChecklist password={data.password} />
+
                             <button 
                                 type="submit" 
                                 disabled={processing}
@@ -133,7 +122,7 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                             </button>
                         </form>
                         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
-                            Teve problemas? <a className="text-primary font-bold hover:underline" href="#">Contate o suporte</a>
+                            Teve problemas? <Link className="text-primary font-bold hover:underline" href={route('support')}>Contate o suporte</Link>
                         </p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-900/50 p-6 text-center border-t border-[#dbe6e1] dark:border-gray-700">
