@@ -1,37 +1,59 @@
 import { Transition } from '@headlessui/react';
 import { Link } from '@inertiajs/react';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, Dispatch, SetStateAction, PropsWithChildren } from 'react';
 
-const DropDownContext = createContext();
+const DropDownContext = createContext<{
+    open: boolean;
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    toggleOpen: () => void;
+}>({
+    open: false,
+    setOpen: () => {},
+    toggleOpen: () => {},
+});
 
-const Dropdown = ({ children }) => {
+const Dropdown = ({ children }: PropsWithChildren) => {
     const [open, setOpen] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const toggleOpen = () => {
         setOpen((previousState) => !previousState);
     };
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (open && containerRef.current && !containerRef.current.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+
+        const handleScroll = () => {
+            if (open) {
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        window.addEventListener('scroll', handleScroll, { capture: true });
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            window.removeEventListener('scroll', handleScroll, { capture: true });
+        };
+    }, [open]);
+
     return (
         <DropDownContext.Provider value={{ open, setOpen, toggleOpen }}>
-            <div className="relative">{children}</div>
+            <div className="relative" ref={containerRef}>{children}</div>
         </DropDownContext.Provider>
     );
 };
 
 const Trigger = ({ children }) => {
-    const { open, setOpen, toggleOpen } = useContext(DropDownContext);
+    const { toggleOpen } = useContext(DropDownContext);
 
     return (
-        <>
-            <div onClick={toggleOpen}>{children}</div>
-
-            {open && (
-                <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setOpen(false)}
-                ></div>
-            )}
-        </>
+        <div onClick={toggleOpen}>{children}</div>
     );
 };
 

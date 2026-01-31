@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
+use App\Http\Requests\StoreGoalRequest;
+use Illuminate\Support\Facades\Log;
+
 class GoalController extends Controller
 {
     /**
@@ -29,35 +32,35 @@ class GoalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreGoalRequest $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'category' => 'required|string',
-            'frequency' => 'required|in:unique,recurrent',
-            'deadline' => 'required|date',
-            'target_value' => 'nullable|numeric',
-            'is_streak_enabled' => 'boolean',
-            'micro_tasks' => 'nullable|array',
-            'micro_tasks.*.title' => 'required|string',
-            'micro_tasks.*.deadline' => 'nullable|date',
-        ]);
+        try {
+            $validated = $request->validated();
 
-        $goal = Auth::user()->goals()->create([
-            'title' => $validated['title'],
-            'category' => $validated['category'],
-            'frequency' => $validated['frequency'],
-            'deadline' => $validated['deadline'],
-            'target_value' => $validated['target_value'] ?? null,
-            'is_streak_enabled' => $validated['is_streak_enabled'] ?? false,
-            'status' => 'active',
-        ]);
+            $goal = Auth::user()->goals()->create([
+                'title' => $validated['title'],
+                'category' => $validated['category'],
+                'frequency' => $validated['frequency'],
+                'deadline' => $validated['deadline'],
+                'target_value' => $validated['target_value'] ?? null,
+                'is_streak_enabled' => $validated['is_streak_enabled'] ?? false,
+                'status' => 'active',
+            ]);
 
-        if (!empty($validated['micro_tasks'])) {
-            $goal->microTasks()->createMany($validated['micro_tasks']);
+            if (!empty($validated['micro_tasks'])) {
+                $goal->microTasks()->createMany($validated['micro_tasks']);
+            }
+
+            return redirect()->route('dashboard');
+        } catch (\Exception $e) {
+            Log::error('Erro ao criar meta: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'request' => $request->all(),
+                'exception' => $e
+            ]);
+
+            return redirect()->back()->withErrors(['message' => 'Ocorreu um erro ao criar a meta.']);
         }
-
-        return redirect()->route('dashboard');
     }
 
     /**

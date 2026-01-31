@@ -218,7 +218,7 @@ export default function LoginRegister({ status, canResetPassword, type = 'login'
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-900/50 p-6 text-center border-t border-[#dbe6e1] dark:border-gray-700">
                         <p className="text-xs text-gray-500 leading-relaxed">
-                            Ao continuar, você concorda com nossos <a href="#" className="underline">Termos de Uso</a> e <a href="#" className="underline">Política de Privacidade</a>.
+                            Ao continuar, você concorda com nossos <Link href={route('terms')} className="underline">Termos de Uso</Link> e <Link href={route('terms')} className="underline">Política de Privacidade</Link>.
                         </p>
                     </div>
                 </div>

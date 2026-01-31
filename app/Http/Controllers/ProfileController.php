@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use App\Http\Requests\ProfileDeleteRequest;
+use Illuminate\Support\Facades\Log;
+
 class ProfileController extends Controller
 {
     /**
@@ -29,35 +32,51 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        try {
+            $user = $request->user();
+            $user->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+            if ($user->isDirty('email')) {
+                $user->email_verified_at = null;
+            }
+
+            $user->save();
+
+            return Redirect::route('profile.edit');
+        } catch (\Exception $e) {
+            Log::error('Erro ao atualizar perfil: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'request' => $request->all(),
+                'exception' => $e
+            ]);
+
+            return Redirect::route('profile.edit')->withErrors(['message' => 'Ocorreu um erro ao atualizar seu perfil.']);
         }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit');
     }
 
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(ProfileDeleteRequest $request): RedirectResponse
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
+        try {
+            $user = $request->user();
 
-        $user = $request->user();
+            Auth::logout();
 
-        Auth::logout();
+            $user->delete();
 
-        $user->delete();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+            return Redirect::to('/');
+        } catch (\Exception $e) {
+            Log::error('Erro ao excluir conta: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'exception' => $e
+            ]);
 
-        return Redirect::to('/');
+            return Redirect::back()->withErrors(['message' => 'Ocorreu um erro ao excluir sua conta.']);
+        }
     }
 }

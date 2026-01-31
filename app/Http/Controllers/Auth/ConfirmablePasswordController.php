@@ -10,6 +10,9 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use App\Http\Requests\Auth\ConfirmPasswordRequest;
+use Illuminate\Support\Facades\Log;
+
 class ConfirmablePasswordController extends Controller
 {
     /**
@@ -23,19 +26,30 @@ class ConfirmablePasswordController extends Controller
     /**
      * Confirm the user's password.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(ConfirmPasswordRequest $request): RedirectResponse
     {
-        if (! Auth::guard('web')->validate([
-            'email' => $request->user()->email,
-            'password' => $request->password,
-        ])) {
-            throw ValidationException::withMessages([
-                'password' => __('auth.password'),
+        try {
+            if (! Auth::guard('web')->validate([
+                'email' => $request->user()->email,
+                'password' => $request->password,
+            ])) {
+                throw ValidationException::withMessages([
+                    'password' => __('auth.password'),
+                ]);
+            }
+
+            $request->session()->put('auth.password_confirmed_at', time());
+
+            return redirect()->intended(route('dashboard', absolute: false));
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error('Erro ao confirmar senha: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'exception' => $e
             ]);
+
+            return redirect()->back()->withErrors(['message' => 'Erro interno ao processar confirmação.']);
         }
-
-        $request->session()->put('auth.password_confirmed_at', time());
-
-        return redirect()->intended(route('dashboard', absolute: false));
     }
 }

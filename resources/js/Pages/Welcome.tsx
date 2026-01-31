@@ -1,6 +1,8 @@
 import { Link, Head } from '@inertiajs/react';
 import { PageProps } from '@/types';
 
+declare function route(name: string, params?: any, absolute?: boolean): string;
+
 export default function Welcome({ auth }: PageProps<{ laravelVersion: string, phpVersion: string }>) {
     return (
         <>
@@ -8,18 +10,17 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
             <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300">
                 <header className="sticky top-0 z-50 w-full border-b border-solid border-[#dbe6e1] bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 md:px-20 lg:px-40 py-3">
                     <div className="max-w-[1200px] mx-auto flex items-center justify-between">
-                        <div className="flex items-center gap-3">
+                        <Link href={route('home')} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                             <div className="size-8 text-primary">
                                 <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                                     <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
                                 </svg>
                             </div>
                             <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Everest</h2>
-                        </div>
+                        </Link>
                         <nav className="hidden md:flex items-center gap-9">
                             <a className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href="#features">Funcionalidades</a>
-                            <a className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href="#pricing">Preços</a>
-                            <a className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href="#stats">Casos de Sucesso</a>
+                            <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('pricing')}>Planos</Link>
                         </nav>
                         <div className="flex gap-3">
                             {auth.user ? (
@@ -281,10 +282,10 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                             <p className="text-gray-500 text-sm">Capacitando pessoas a alcançarem seu auge desde 2024.</p>
                         </div>
                         <div className="flex gap-8 text-sm font-medium text-gray-600 dark:text-gray-400">
-                            <a className="hover:text-primary" href="#">Privacidade</a>
-                            <a className="hover:text-primary" href="#">Termos</a>
-                            <a className="hover:text-primary" href="#">Ajuda</a>
-                            <a className="hover:text-primary" href="#">Contato</a>
+                            <Link className="hover:text-primary" href={route('terms')}>Privacidade</Link>
+                            <Link className="hover:text-primary" href={route('terms')}>Termos</Link>
+                            <Link className="hover:text-primary" href={route('support')}>Ajuda</Link>
+                            <Link className="hover:text-primary" href={route('support')}>Contato</Link>
                         </div>
                         <div className="flex gap-4">
                             <div className="size-10 rounded-full border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-500 hover:text-primary cursor-pointer">

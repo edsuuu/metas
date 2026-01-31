@@ -33,8 +33,14 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                                 className={`text-sm font-bold transition-colors ${route().current('goals.*') ? 'text-[#111815] dark:text-white' : 'text-gray-400 hover:text-primary'}`}
                             >
                                 Metas
+                                Metas
                             </Link>
-                            <Link href="#" className="text-sm font-bold text-gray-400 hover:text-primary transition-colors">Conquistas</Link>
+                            <Link 
+                                href={route('achievements')} 
+                                className={`text-sm font-bold transition-colors ${route().current('achievements') ? 'text-[#111815] dark:text-white' : 'text-gray-400 hover:text-primary'}`}
+                            >
+                                Conquistas
+                            </Link>
                         </nav>
                     </div>
 

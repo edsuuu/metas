@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,11 +31,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
 
-        $request->session()->regenerate();
+            $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->intended(route('dashboard', absolute: false));
+        } catch (\Exception $e) {
+            Log::error('Erro ao realizar login: ' . $e->getMessage(), [
+                'email' => $request->email,
+                'exception' => $e
+            ]);
+
+            return redirect()->back()->withErrors(['email' => 'Não foi possível realizar a autenticação.']);
+        }
     }
 
     /**
