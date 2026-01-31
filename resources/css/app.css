@@ -43,7 +43,7 @@
     border-color: #13ec92;
 }
 
-.toggle-checkbox:checked + .toggle-label {
+.toggle-checkbox:checked+.toggle-label {
     @apply bg-primary;
     background-color: #13ec92;
 }

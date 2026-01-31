@@ -1,7 +1,11 @@
-import React, { FormEventHandler } from 'react';
+import React, { FormEventHandler, useEffect, useRef } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import LegalNavbar from '@/Components/LegalNavbar';
 import Footer from '@/Components/Footer';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
 
@@ -22,9 +26,66 @@ export default function SupportIndex() {
     };
 
     const { flash } = usePage().props as any;
+    const mainRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Force scroll to top on refresh
+        window.history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+
+        const ctx = gsap.context(() => {
+            // Hero section
+            gsap.from(".support-hero > *", {
+                y: 20,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "expo.out"
+            });
+
+            // Category cards - removed animation to fix visibility issues
+            gsap.set(".support-category-card", { opacity: 1, y: 0 });
+
+            // Contact cards
+            gsap.from(".support-contact-card", {
+                scrollTrigger: {
+                    trigger: ".support-contact-grid",
+                    start: "top 90%",
+                },
+                y: 20,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out"
+            });
+
+            // Form container
+            gsap.from(".support-form-container", {
+                scrollTrigger: {
+                    trigger: ".support-form-container",
+                    start: "top 90%",
+                },
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power3.out"
+            });
+
+            ScrollTrigger.refresh();
+        }, mainRef);
+
+        const timer = setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 1000);
+
+        return () => {
+            ctx.revert();
+            clearTimeout(timer);
+        };
+    }, []);
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300 min-h-screen flex flex-col font-display">
+        <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300 min-h-screen flex flex-col font-display" ref={mainRef}>
             <Head title="Everest - Central de Suporte" />
 
             <LegalNavbar>
@@ -35,7 +96,7 @@ export default function SupportIndex() {
                 <section className="pt-20 pb-16 px-4" style={{
                     background: 'radial-gradient(circle at top right, rgba(19, 236, 146, 0.15), transparent), radial-gradient(circle at bottom left, rgba(19, 236, 146, 0.05), transparent)'
                 }}>
-                    <div className="max-w-[800px] mx-auto text-center">
+                    <div className="max-w-[800px] mx-auto text-center support-hero">
                         <h1 className="text-4xl md:text-5xl font-black text-[#111815] dark:text-white mb-6 tracking-tight">Central de Ajuda</h1>
                         <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">Tudo o que você precisa para conquistar seus objetivos sem obstáculos.</p>
                         <div className="relative max-w-2xl mx-auto group">
@@ -46,29 +107,29 @@ export default function SupportIndex() {
                 </section>
 
                 <section className="max-w-[1200px] mx-auto px-4 py-16">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1" href="#">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 support-category-grid">
+                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1 support-category-card" href="#">
                             <div className="size-14 bg-background-light dark:bg-gray-700 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-3xl">key</span>
                             </div>
                             <h3 className="text-xl font-bold text-[#111815] dark:text-white mb-2">Problemas de Login</h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">Recuperação de senha, autenticação e segurança da conta.</p>
                         </a>
-                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1" href="#">
+                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1 support-category-card" href="#">
                             <div className="size-14 bg-background-light dark:bg-gray-700 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-3xl">flag</span>
                             </div>
                             <h3 className="text-xl font-bold text-[#111815] dark:text-white mb-2">Gerenciamento de Metas</h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">Como criar, editar e acompanhar seu progresso no Everest.</p>
                         </a>
-                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1" href="#">
+                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1 support-category-card" href="#">
                             <div className="size-14 bg-background-light dark:bg-gray-700 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-3xl">auto_awesome</span>
                             </div>
                             <h3 className="text-xl font-bold text-[#111815] dark:text-white mb-2">Gamificação e XP</h3>
                             <p className="text-sm text-gray-500 dark:text-gray-400">Entenda como funcionam os níveis, badges e recompensas.</p>
                         </a>
-                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1" href="#">
+                        <a className="group bg-white dark:bg-gray-800 p-8 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-all hover:shadow-lg hover:-translate-y-1 support-category-card" href="#">
                             <div className="size-14 bg-background-light dark:bg-gray-700 rounded-2xl flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
                                 <span className="material-symbols-outlined text-3xl">payments</span>
                             </div>
@@ -85,8 +146,8 @@ export default function SupportIndex() {
                             <p className="text-gray-500 dark:text-gray-400">Não encontrou o que procurava? Nossa equipe de especialistas está pronta para te ajudar a chegar no topo.</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-                             <div className="flex items-start gap-4 p-6 rounded-3xl bg-background-light dark:bg-gray-800 border border-[#dbe6e1] dark:border-gray-700 hover:border-primary transition-colors">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 support-contact-grid">
+                             <div className="flex items-start gap-4 p-6 rounded-3xl bg-background-light dark:bg-gray-800 border border-[#dbe6e1] dark:border-gray-700 hover:border-primary transition-colors support-contact-card">
                                 <div className="p-3 bg-white dark:bg-gray-700 rounded-2xl text-primary shadow-sm">
                                     <span className="material-symbols-outlined">mail</span>
                                 </div>
@@ -96,7 +157,7 @@ export default function SupportIndex() {
                                     <a href="mailto:suporte@everest.app" className="text-primary font-bold hover:underline">suporte@everest.app</a>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4 p-6 rounded-3xl bg-background-light dark:bg-gray-800 border border-[#dbe6e1] dark:border-gray-700 hover:border-primary transition-colors">
+                            <div className="flex items-start gap-4 p-6 rounded-3xl bg-background-light dark:bg-gray-800 border border-[#dbe6e1] dark:border-gray-700 hover:border-primary transition-colors support-contact-card">
                                 <div className="p-3 bg-white dark:bg-gray-700 rounded-2xl text-primary shadow-sm">
                                     <span className="material-symbols-outlined">folder_open</span>
                                 </div>
@@ -108,7 +169,7 @@ export default function SupportIndex() {
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-gray-800 p-8 md:p-10 rounded-[2rem] border border-[#dbe6e1] dark:border-gray-700 shadow-xl relative overflow-hidden">
+                        <div className="bg-white dark:bg-gray-800 p-8 md:p-10 rounded-[2rem] border border-[#dbe6e1] dark:border-gray-700 shadow-xl relative overflow-hidden support-form-container">
                              {flash?.success ? (
                                 <div className="flex flex-col items-center justify-center py-10 text-center animate-fade-in">
                                     <div className="size-20 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mb-6">

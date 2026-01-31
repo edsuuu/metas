@@ -22,7 +22,6 @@ export default function PublicNavbar({ auth }: PublicNavbarProps) {
                     <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Everest</h2>
                 </Link>
                 <nav className="hidden md:flex items-center gap-9">
-                    <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('home') + '#features'}>Funcionalidades</Link>
                     <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('pricing')}>Planos</Link>
                     <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('blog')}>Blog</Link>
                     <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('support')}>Contato</Link>
@@ -47,7 +46,7 @@ export default function PublicNavbar({ auth }: PublicNavbarProps) {
                                 href={route('register')}
                                 className="flex min-w-[100px] cursor-pointer items-center justify-center rounded-full h-10 px-5 bg-primary text-[#111815] text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-transform"
                             >
-                                Teste Grátis
+                                Teste Grátis de 14 dias
                             </Link>
                         </>
                     )}

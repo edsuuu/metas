@@ -1,30 +1,101 @@
-import React from 'react';
+import { useRef, useEffect } from 'react';
 import { Head, usePage, Link } from '@inertiajs/react';
 import PublicNavbar from '@/Components/PublicNavbar';
 import Footer from '@/Components/Footer';
 import { PageProps } from '@/types';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
 
 export default function Pricing() {
     const { auth } = usePage<PageProps>().props;
+    const mainRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Force scroll to top on refresh
+        window.history.scrollRestoration = 'manual';
+        window.scrollTo(0, 0);
+
+        const ctx = gsap.context(() => {
+            // Header animation - simple fade
+            gsap.from(".pricing-header > *", {
+                y: 20,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out"
+            });
+
+            // Pricing cards - simple fade reveal
+            gsap.from(".pricing-card", {
+                scrollTrigger: {
+                    trigger: ".pricing-grid",
+                    start: "top 90%",
+                },
+                y: 20,
+                opacity: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out"
+            });
+
+            // FAQ section - simple fade
+            gsap.from(".faq-item", {
+                scrollTrigger: {
+                    trigger: ".faq-section",
+                    start: "top 90%",
+                },
+                y: 15,
+                opacity: 0,
+                duration: 0.5,
+                stagger: 0.05,
+                ease: "power2.out"
+            });
+
+            // Footer CTA - simple fade
+            gsap.from(".pricing-cta-content", {
+                scrollTrigger: {
+                    trigger: ".pricing-cta-section",
+                    start: "top 90%",
+                },
+                y: 20,
+                opacity: 0,
+                duration: 0.6,
+                ease: "power2.out"
+            });
+
+            ScrollTrigger.refresh();
+        }, mainRef);
+
+        const timer = setTimeout(() => {
+            ScrollTrigger.refresh();
+        }, 1000);
+
+        return () => {
+            ctx.revert();
+            clearTimeout(timer);
+        };
+    }, []);
 
     return (
-        <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300 font-display min-h-screen flex flex-col">
+        <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300 font-display min-h-screen flex flex-col" ref={mainRef}>
             <Head title="Planos e Preços Individuais - Everest" />
 
             <PublicNavbar auth={auth} />
 
             <main className="flex-1 flex flex-col items-center">
                 <section className="w-full max-w-[1200px] px-4 md:px-10 py-16 md:py-24" id="pricing">
-                    <div className="flex flex-col gap-4 text-center mb-16">
+                    <div className="flex flex-col gap-4 text-center mb-16 pricing-header">
                         <h1 className="text-[#111815] dark:text-white text-4xl md:text-5xl font-black tracking-tight">Planos e Preços <span className="text-primary">Individuais</span></h1>
                         <p className="text-gray-600 dark:text-gray-400 text-lg max-w-[700px] mx-auto">
                             Foco total na sua evolução pessoal. Escolha o nível de suporte que você precisa para chegar ao topo.
                         </p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-                        <div className="flex flex-col p-8 bg-white dark:bg-gray-800 rounded-xl border border-[#dbe6e1] dark:border-gray-700 shadow-sm transition-all hover:border-primary/50">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch pricing-grid">
+                        <div className="flex flex-col p-8 bg-white dark:bg-gray-800 rounded-xl border border-[#dbe6e1] dark:border-gray-700 shadow-sm transition-all hover:border-primary/50 pricing-card">
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold mb-2">Iniciante</h3>
                                 <div className="flex items-baseline gap-1">
@@ -55,7 +126,7 @@ export default function Pricing() {
                                 Começar grátis
                             </Link>
                         </div>
-                        <div className="flex flex-col p-8 bg-white dark:bg-gray-800 rounded-xl border-2 border-primary shadow-2xl relative transform scale-105 z-10">
+                        <div className="flex flex-col p-8 bg-white dark:bg-gray-800 rounded-xl border-2 border-primary shadow-2xl relative transform scale-105 z-10 pricing-card">
                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-[#111815] text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full">
                                 Mais Popular
                             </div>
@@ -93,7 +164,7 @@ export default function Pricing() {
                                 Assinar Plano Pro
                             </Link>
                         </div>
-                        <div className="flex flex-col p-8 bg-white dark:bg-gray-800 rounded-xl border border-[#dbe6e1] dark:border-gray-700 shadow-sm transition-all hover:border-primary/50">
+                        <div className="flex flex-col p-8 bg-white dark:bg-gray-800 rounded-xl border border-[#dbe6e1] dark:border-gray-700 shadow-sm transition-all hover:border-primary/50 pricing-card">
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold mb-2">Elite</h3>
                                 <div className="flex items-baseline gap-1">
@@ -130,31 +201,31 @@ export default function Pricing() {
                         </div>
                     </div>
                 </section>
-                <section className="w-full bg-white dark:bg-background-dark py-24" id="faq">
+                <section className="w-full bg-white dark:bg-background-dark py-24 faq-section" id="faq">
                     <div className="max-w-[800px] mx-auto px-4 md:px-10">
                         <h2 className="text-3xl font-black text-center mb-12">Dúvidas Frequentes</h2>
                         <div className="space-y-6">
-                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700">
+                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700 faq-item">
                                 <h4 className="font-bold mb-2 text-lg">Posso mudar de plano quando quiser?</h4>
                                 <p className="text-gray-600 dark:text-gray-400">Sim! Você pode fazer o upgrade para Pro ou Elite a qualquer momento. Se decidir voltar para o plano gratuito, suas metas extras ficarão arquivadas mas salvas.</p>
                             </div>
-                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700">
+                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700 faq-item">
                                 <h4 className="font-bold mb-2 text-lg">Como funciona a Mentoria Mensal do plano Elite?</h4>
                                 <p className="text-gray-600 dark:text-gray-400">Todo primeiro sábado do mês realizamos uma call exclusiva para membros Elite sobre produtividade, hábitos e revisão de metas com especialistas.</p>
                             </div>
-                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700">
+                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700 faq-item">
                                 <h4 className="font-bold mb-2 text-lg">O Everest tem acesso Vitalício?</h4>
                                 <p className="text-gray-600 dark:text-gray-400">Atualmente trabalhamos com assinaturas mensais para garantir a evolução contínua da plataforma, mas oferecemos descontos especiais para renovações anuais.</p>
                             </div>
-                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700">
+                            <div className="p-6 bg-background-light dark:bg-gray-800/50 rounded-xl border border-[#dbe6e1] dark:border-gray-700 faq-item">
                                 <h4 className="font-bold mb-2 text-lg">Existe suporte para usuários individuais?</h4>
                                 <p className="text-gray-600 dark:text-gray-400">Com certeza. Todos os usuários têm acesso à nossa central de ajuda. Assinantes Elite possuem canal direto e prioritário.</p>
                             </div>
                         </div>
                     </div>
                 </section>
-                <section className="w-full max-w-[1200px] px-4 py-24">
-                    <div className="bg-background-dark text-white rounded-xl p-8 md:p-16 flex flex-col items-center text-center gap-8 relative overflow-hidden">
+                <section className="w-full max-w-[1200px] px-4 py-24 pricing-cta-section">
+                    <div className="bg-background-dark text-white rounded-xl p-8 md:p-16 flex flex-col items-center text-center gap-8 relative overflow-hidden pricing-cta-content">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
                         <h2 className="text-4xl md:text-5xl font-black max-w-[700px] relative z-10">O topo da montanha espera por você.</h2>

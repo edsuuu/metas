@@ -21,7 +21,6 @@ export default function LegalNavbar({ children }: LegalNavbarProps) {
                 </Link>
                 
                 <nav className="hidden md:flex items-center gap-9">
-                    <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('home') + '#features'}>Funcionalidades</Link>
                     <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('pricing')}>Planos</Link>
                     <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('blog')}>Blog</Link>
                     <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('support')}>Contato</Link>
