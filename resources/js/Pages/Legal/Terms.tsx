@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import LegalNavbar from '@/Components/LegalNavbar';
 
+declare function route(name: string, params?: any, absolute?: boolean): string;
+
 export default function Terms() {
     useEffect(() => {
         const handleScroll = () => {
