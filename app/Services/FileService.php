@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
-
 class FileService
 {
     /**
@@ -23,17 +20,6 @@ class FileService
             $disk = config('filesystems.default', 'public');
             if ($disk === 's3') {
                 $disk = 'public'; // Force public if S3 logic is not fully checked or desired fallback
-            }
-            
-            // Check if it is an image to strip metadata
-             if (str_starts_with($file->getMimeType(), 'image/') && class_exists(ImageManager::class)) {
-                try {
-                     $manager = new ImageManager(new Driver());
-                    $image = $manager->read($file->getRealPath());
-                    $image->save($file->getRealPath()); 
-                } catch (\Exception $imgEx) {
-                    Log::warning('Erro ao remover metadados: ' . $imgEx->getMessage(), ['exception' => $imgEx]);
-                }
             }
 
             $path = $file->store("uploads/{$model->getTable()}/{$collection}", $disk);
@@ -63,24 +49,6 @@ class FileService
             $contents = @file_get_contents($url);
             if (!$contents) {
                 return null;
-            }
-
-            // Strip metadata if it's an image
-            try {
-                if (class_exists(ImageManager::class)) {
-                     // Check if it is a valid image before processing
-                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                    $mime = $finfo->buffer($contents);
-
-                    if (str_starts_with($mime, 'image/')) {
-                        $manager = new ImageManager(new Driver());
-                        $image = $manager->read($contents);
-                        // Re-encode strips EXIF by default
-                        $contents = (string) $image->toJpeg(quality: 85); 
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::warning('Falha ao processar metadados da imagem: ' . $e->getMessage(), ['exception' => $e]);
             }
 
             $filename = 'avatar_' . Str::random(10) . '.jpg';

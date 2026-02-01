@@ -45,16 +45,16 @@ export default function TermsIntro() {
                         <a className="nav-link active px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href="#introducao">
                             <span className="material-symbols-outlined text-[18px]">info</span> Introdução
                         </a>
-                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href="/terms/data-collection">
+                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href={route('terms.data-collection')}>
                             <span className="material-symbols-outlined text-[18px]">database</span> Coleta de Dados
                         </Link>
-                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href="/terms#cookies">
+                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href={`${route('terms')}#cookies`}>
                             <span className="material-symbols-outlined text-[18px]">cookie</span> Uso de Cookies
                         </Link>
-                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href="/terms/security">
+                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href={route('terms.security')}>
                             <span className="material-symbols-outlined text-[18px]">shield</span> Segurança
                         </Link>
-                         <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href="/terms/responsibilities">
+                         <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href={route('terms.responsibilities')}>
                             <span className="material-symbols-outlined text-[18px]">gavel</span> Responsabilidades
                         </Link>
 
@@ -63,7 +63,7 @@ export default function TermsIntro() {
                 <section className="flex-1">
                     <div className="mb-12">
                         <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
-                            <Link className="hover:text-primary transition-colors" href="/terms">Termos</Link>
+                            <Link className="hover:text-primary transition-colors" href={route('terms')}>Termos</Link>
                             <span className="material-symbols-outlined text-base">chevron_right</span>
                             <span className="text-primary font-medium">Introdução</span>
                         </nav>
@@ -101,13 +101,13 @@ export default function TermsIntro() {
                         <div className="mt-16 flex items-center justify-between border-t border-[#dbe6e1] dark:border-gray-800 pt-8">
                             <div className="flex flex-col">
                                 <span className="text-xs text-gray-400 uppercase font-bold tracking-widest mb-1">Anterior</span>
-                                <Link className="text-gray-600 dark:text-gray-400 hover:text-primary font-bold flex items-center gap-1" href="/terms">
+                                <Link className="text-gray-600 dark:text-gray-400 hover:text-primary font-bold flex items-center gap-1" href={route('terms')}>
                                     <span className="material-symbols-outlined text-sm">arrow_back</span> Visão Geral
                                 </Link>
                             </div>
                             <div className="flex flex-col items-end">
                                 <span className="text-xs text-gray-400 uppercase font-bold tracking-widest mb-1">Próximo</span>
-                                <Link className="text-[#111815] dark:text-white hover:text-primary font-bold flex items-center gap-1 text-right" href="/terms/data-collection">
+                                <Link className="text-[#111815] dark:text-white hover:text-primary font-bold flex items-center gap-1 text-right" href={route('terms.data-collection')}>
                                     Coleta de Dados <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                 </Link>
                             </div>
@@ -133,10 +133,10 @@ export default function TermsIntro() {
                         <span className="text-[#111815] dark:text-white font-bold">Everest</span>
                     </div>
                     <div className="flex gap-8 text-xs font-medium text-gray-500">
-                        <Link className="hover:text-primary transition-colors" href="/terms">Termos de Uso</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms">Privacidade</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms">Cookies</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms/security">Segurança</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms')}>Termos de Uso</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('privacy')}>Privacidade</Link>
+                        <Link className="hover:text-primary transition-colors" href={`${route('terms')}#cookies`}>Cookies</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms.security')}>Segurança</Link>
                     </div>
                     <p className="text-xs text-gray-400">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
                 </div>

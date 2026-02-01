@@ -52,7 +52,7 @@ export default function Security() {
                         <div className="mt-8 p-6 bg-primary/5 rounded-2xl border border-primary/20">
                             <p className="text-sm font-bold text-[#111815] dark:text-white mb-2">Segurança em Primeiro Lugar</p>
                             <p className="text-xs text-gray-500 mb-4">Seus dados financeiros e metas são protegidos por tecnologia de ponta.</p>
-                            <Link className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline" href="/support">
+                            <Link className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline" href={route('support')}>
                                 Central de Ajuda <span className="material-symbols-outlined text-sm">arrow_forward</span>
                             </Link>
                         </div>
@@ -168,10 +168,10 @@ export default function Security() {
                         <span className="text-[#111815] dark:text-white font-bold">Everest</span>
                     </div>
                     <div className="flex gap-8 text-xs font-medium text-gray-500">
-                        <Link className="hover:text-primary transition-colors" href="/terms">Termos de Uso</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms">Privacidade</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms/security">Segurança</Link>
-                        <Link className="hover:text-primary transition-colors" href="#">Status</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms')}>Termos de Uso</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('privacy')}>Privacidade</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms.security')}>Segurança</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('social.status')}>Status</Link>
                     </div>
                     <p className="text-xs text-gray-400">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
                 </div>

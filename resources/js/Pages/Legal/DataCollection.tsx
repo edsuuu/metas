@@ -38,7 +38,7 @@ export default function DataCollection() {
                 <aside className="hidden lg:block w-72 h-fit sticky top-28">
                     <nav className="flex flex-col gap-1">
                         <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4 px-4">Documentação</h3>
-                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href="/terms">
+                        <Link className="nav-link px-4 py-3 text-sm font-semibold rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all flex items-center gap-3" href={route('terms')}>
                             <span className="material-symbols-outlined text-[18px]">arrow_back</span> Voltar aos Termos
                         </Link>
                         <div className="h-px bg-gray-200 dark:my-2"></div>
@@ -58,7 +58,7 @@ export default function DataCollection() {
                 <section className="flex-1">
                     <div className="mb-12">
                         <nav className="flex items-center gap-2 text-xs font-bold text-gray-400 mb-6 uppercase tracking-wider">
-                            <Link className="hover:text-primary" href="/terms">Privacidade</Link>
+                            <Link className="hover:text-primary" href={route('terms')}>Privacidade</Link>
                             <span className="material-symbols-outlined text-xs">chevron_right</span>
                             <span className="text-primary">Coleta de Dados Detalhada</span>
                         </nav>
@@ -154,10 +154,10 @@ export default function DataCollection() {
                         <span className="text-[#111815] dark:text-white font-bold">Everest</span>
                     </div>
                     <div className="flex gap-8 text-xs font-medium text-gray-500">
-                        <Link className="hover:text-primary transition-colors" href="/terms">Termos de Uso</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms">Privacidade</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms">Cookies</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms/security">Segurança</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms')}>Termos de Uso</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('privacy')}>Privacidade</Link>
+                        <Link className="hover:text-primary transition-colors" href={`${route('terms')}#cookies`}>Cookies</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms.security')}>Segurança</Link>
                     </div>
                     <p className="text-xs text-gray-400">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
                 </div>

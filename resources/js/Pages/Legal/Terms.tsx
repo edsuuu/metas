@@ -73,7 +73,7 @@ export default function Terms() {
                             <h2 className="text-2xl font-bold mt-12 mb-6 text-[#111815] dark:text-white flex items-center gap-2">1. Introdução</h2>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 text-base">Bem-vindo ao Everest. Ao utilizar nossa plataforma de gestão de metas pessoais, você concorda em cumprir estes termos. O Everest foi projetado para ajudá-lo a alcançar seu potencial máximo, respeitando sua privacidade e garantindo a segurança de sua jornada.</p>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 text-base">Estes termos regem o uso do nosso site, aplicativos móveis e serviços relacionados. Se você não concordar com qualquer parte destes termos, recomendamos não utilizar os nossos serviços.</p>
-                            <Link href="/terms/intro" className="flex items-center gap-2 text-primary font-bold hover:underline">
+                            <Link href={route('terms.intro')} className="flex items-center gap-2 text-primary font-bold hover:underline">
                                 Ver Introdução Detalhada <span className="material-symbols-outlined text-sm">arrow_forward</span>
                             </Link>
                         </div>
@@ -86,7 +86,7 @@ export default function Terms() {
                                 <li>Dados técnicos de acesso, como endereço IP e tipo de dispositivo, para otimização de performance.</li>
                             </ul>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 text-base">Seus dados de progresso pessoal nunca são vendidos a terceiros. Eles existem apenas para alimentar o seu dashboard e fornecer insights personalizados.</p>
-                            <Link href="/terms/data-collection" className="flex items-center gap-2 text-primary font-bold hover:underline">
+                            <Link href={route('terms.data-collection')} className="flex items-center gap-2 text-primary font-bold hover:underline">
                                 Ver Detalhes da Coleta <span className="material-symbols-outlined text-sm">arrow_forward</span>
                             </Link>
                         </div>
@@ -99,7 +99,7 @@ export default function Terms() {
                             <h2 className="text-2xl font-bold mt-12 mb-6 text-[#111815] dark:text-white flex items-center gap-2">4. Segurança da Informação</h2>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 text-base">Segurança não é opcional no Everest. Implementamos camadas de proteção de nível bancário para garantir que sua jornada ao topo esteja segura:</p>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 text-base">Utilizamos criptografia SSL/TLS para todos os dados em trânsito e armazenamento seguro para informações sensíveis. Além disso, incentivamos o uso de senhas fortes e autenticação de dois fatores.</p>
-                            <Link href="/terms/security" className="flex items-center gap-2 text-primary font-bold hover:underline">
+                            <Link href={route('terms.security')} className="flex items-center gap-2 text-primary font-bold hover:underline">
                                 Ver Política de Segurança <span className="material-symbols-outlined text-sm">arrow_forward</span>
                             </Link>
                         </div>
@@ -107,7 +107,7 @@ export default function Terms() {
                             <h2 className="text-2xl font-bold mt-12 mb-6 text-[#111815] dark:text-white flex items-center gap-2">5. Responsabilidades</h2>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 text-base">O Everest é uma ferramenta de auxílio. Embora façamos o máximo para manter o serviço disponível 24/7, não nos responsabilizamos por perdas de dados decorrentes de mau uso da conta ou falhas técnicas externas.</p>
                             <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6 text-base">Você é responsável pela veracidade das informações inseridas e pelo sigilo de suas credenciais de acesso.</p>
-                            <Link href="/terms/responsibilities" className="flex items-center gap-2 text-primary font-bold hover:underline">
+                            <Link href={route('terms.responsibilities')} className="flex items-center gap-2 text-primary font-bold hover:underline">
                                 Ver Responsabilidades <span className="material-symbols-outlined text-sm">arrow_forward</span>
                             </Link>
                         </div>
@@ -132,10 +132,10 @@ export default function Terms() {
                         <span className="text-[#111815] dark:text-white font-bold">Everest</span>
                     </div>
                     <div className="flex gap-8 text-xs font-medium text-gray-500">
-                        <Link className="hover:text-primary transition-colors" href="/terms">Termos de Uso</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms">Privacidade</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms">Cookies</Link>
-                        <Link className="hover:text-primary transition-colors" href="/terms/security">Segurança</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms')}>Termos de Uso</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('privacy')}>Privacidade</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms')}>Cookies</Link>
+                        <Link className="hover:text-primary transition-colors" href={route('terms.security')}>Segurança</Link>
                     </div>
                     <p className="text-xs text-gray-400">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
                 </div>
