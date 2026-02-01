@@ -16,11 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->string('category');
-            $table->string('frequency');
-            $table->date('deadline');
-            $table->decimal('target_value', 10, 2)->nullable();
+            // Removed unused columns: frequency, deadline, target_value
             $table->boolean('is_streak_enabled')->default(false);
-            $table->integer('current_streak')->default(0);
             $table->enum('status', ['active', 'completed', 'archived'])->default('active');
             $table->timestamps();
         });

@@ -1,50 +1,110 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-export default function CreateGoal({ auth }: PageProps) {
+declare function route(name: string, params?: any): string;
+
+interface CreateGoalProps extends PageProps {
+    goal?: any;
+}
+
+export default function CreateGoal({ goal }: CreateGoalProps) {
+    const isEditing = !!goal;
     const [step, setStep] = useState(1);
     
     // Form state handling
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, put, processing, errors } = useForm({
         // Step 1
-        title: '',
-        category: 'saude',
-        frequency: 'unique', // 'recurrent' or 'unique'
+        title: goal?.title || '',
+        category: goal?.category || 'saude',
+        is_streak_enabled: goal?.is_streak_enabled || false,
         
-        // Step 2
-        deadline: '',
-        target_value: '',
-        is_streak_enabled: true,
-        reminder_frequency: 'daily', // 'daily' or 'weekly'
-        reminder_time: '09:00',
-
-        // Step 3
-        micro_tasks: [
-            { title: 'Definir destino da viagem', deadline: '2024-05-20' },
-            { title: 'Pesquisar passagens aéreas', deadline: '2024-06-15' },
-        ],
+        // Step 2 (Former Step 3)
+        micro_tasks: goal?.micro_tasks?.map((t: any) => ({ title: t.title })) || [] as { title: string }[],
         new_task_title: '',
-        new_task_deadline: ''
     });
 
-    const nextStep = () => setStep(step + 1);
+    const [valErrors, setValErrors] = useState<Record<string, string>>({});
+
+    // Auto-return to step 1 if there are backend errors for those fields
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            if (errors.title || errors.category) {
+                setStep(1);
+            }
+        }
+    }, [errors]);
+
+    const validateStep = (currentStep: number) => {
+        const errors: Record<string, string> = {};
+        if (currentStep === 1) {
+            if (!data.title) errors.title = 'O nome da meta é obrigatório';
+        }
+        // Step 2 validation is optional (micro-tasks are optional)
+        setValErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const nextStep = () => {
+        if (validateStep(step)) {
+            setStep(step + 1);
+        }
+    };
     const prevStep = () => setStep(step - 1);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('goals.store'));
+        
+        if (step !== 2) {
+            nextStep();
+            return;
+        }
+
+        if (!data.is_streak_enabled && data.micro_tasks.length === 0) {
+            setValErrors({ 
+                ...valErrors, 
+                micro_tasks: 'A meta precisa ter pelo menos uma sub-tarefa OU o sistema de ofensivas ativado.' 
+            });
+            return;
+        }
+
+        if (isEditing) {
+            put(route('goals.update', goal.id));
+        } else {
+            post(route('goals.store'));
+        }
     };
 
     const addMicroTask = () => {
-        if (data.new_task_title) {
-            setData('micro_tasks', [
+        const title = data.new_task_title.trim();
+        if (title) {
+            const isDuplicate = data.micro_tasks.some(
+                (task: any) => task.title.toLowerCase() === title.toLowerCase()
+            );
+
+            if (isDuplicate) {
+                setValErrors({ ...valErrors, new_task_title: 'Esta tarefa já foi adicionada!' });
+                return;
+            }
+
+            const updatedTasks = [
                 ...data.micro_tasks, 
-                { title: data.new_task_title, deadline: data.new_task_deadline }
-            ]);
-            setData('new_task_title', ''); // Reset input
-            setData('new_task_deadline', '');
+                { title: title }
+            ];
+            
+            // Clear specific error if adding a non-duplicate
+            if (valErrors.new_task_title) {
+                const newErrors = { ...valErrors };
+                delete newErrors.new_task_title;
+                setValErrors(newErrors);
+            }
+
+            setData({
+                ...data,
+                micro_tasks: updatedTasks,
+                new_task_title: '',
+            });
         }
     };
 
@@ -64,43 +124,45 @@ export default function CreateGoal({ auth }: PageProps) {
                 <div className="max-w-3xl mx-auto">
                     <div className="mb-10 flex flex-col items-center text-center">
                         <h1 className="text-3xl font-black text-[#111815] dark:text-white mb-2">
-                            {step === 1 && 'Cadastro de Nova Meta'}
-                            {step === 2 && 'Cadastro de Meta: Detalhes'}
-                            {step === 3 && 'Cadastro de Meta: Micro-tarefas'}
+                            {isEditing ? 'Editar Meta' : (
+                                <>
+                                    {step === 1 && 'Cadastro de Nova Meta'}
+                                    {step === 2 && 'Cadastro de Meta: Micro-tarefas'}
+                                </>
+                            )}
                         </h1>
                         <p className="text-gray-500 dark:text-gray-400">
                             {step === 1 && 'Transforme seus sonhos em passos acionáveis.'}
-                            {step === 2 && 'Defina os prazos, valores e lembretes para alcançar seu topo.'}
-                            {step === 3 && 'Divida sua jornada em conquistas diárias.'}
+                            {step === 2 && 'Divida sua jornada em conquistas diárias.'}
                         </p>
                     </div>
 
                     {/* Stepper */}
-                    <div className="flex items-center justify-between mb-12 relative w-full">
-                         <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 dark:bg-gray-800 -translate-y-1/2 z-0"></div>
+                    <div className="relative mb-12 w-full px-4 md:px-10">
+                         <div className="absolute top-5 left-0 w-full h-[2px] bg-gray-100 dark:bg-gray-800 z-0"></div>
                          
-                         {/* Step 1 Node */}
-                         <div className="relative z-10 flex flex-col items-center gap-2">
-                            <div className={`size-10 rounded-full flex items-center justify-center font-bold border-2 transition-colors ${step >= 1 ? 'bg-primary text-background-dark border-primary' : 'bg-white dark:bg-gray-800 border-gray-200 text-gray-400'}`}>
-                                {step > 1 ? <span className="material-symbols-outlined text-sm">check</span> : '1'}
-                            </div>
-                            <span className={`text-xs font-bold ${step >= 1 ? 'text-primary' : 'text-gray-400'}`}>Definição</span>
-                         </div>
-
-                         {/* Step 2 Node */}
-                         <div className="relative z-10 flex flex-col items-center gap-2">
-                            <div className={`size-10 rounded-full flex items-center justify-center font-bold border-2 transition-colors ${step >= 2 ? 'bg-primary text-background-dark border-primary' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'} ${step === 2 ? 'border-primary text-primary' : ''}`}>
-                                {step > 2 ? <span className="material-symbols-outlined text-sm">check</span> : '2'}
-                            </div>
-                            <span className={`text-xs font-bold ${step >= 2 ? 'text-[#111815] dark:text-white' : 'text-gray-400'}`}>Detalhes</span>
-                         </div>
-
-                         {/* Step 3 Node */}
-                         <div className="relative z-10 flex flex-col items-center gap-2">
-                             <div className={`size-10 rounded-full flex items-center justify-center font-bold border-2 transition-colors ${step >= 3 ? 'bg-primary text-background-dark border-primary' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-400'} ${step === 3 ? 'border-primary text-primary' : ''}`}>
-                                 3
+                         <div className="relative z-10 flex items-center justify-between w-full max-w-sm mx-auto">
+                             {/* Step 1 Node */}
+                             <div 
+                                className="flex flex-col items-center gap-2 cursor-pointer group"
+                                onClick={() => setStep(1)}
+                             >
+                                <div className={`size-10 rounded-full flex items-center justify-center font-bold border-2 transition-all group-hover:scale-110 ${step >= 1 ? 'bg-primary text-background-dark border-primary shadow-lg shadow-primary/20' : 'bg-white dark:bg-gray-800 border-gray-100 text-gray-400'}`}>
+                                    {step > 1 ? <span className="material-symbols-outlined text-base">check</span> : '1'}
+                                </div>
+                                <span className={`text-[10px] font-bold uppercase tracking-widest ${step >= 1 ? 'text-primary' : 'text-gray-400'}`}>Objetivo</span>
                              </div>
-                             <span className={`text-xs font-bold ${step >= 3 ? 'text-[#111815] dark:text-white' : 'text-gray-400'}`}>Micro-tarefas</span>
+
+                             {/* Step 2 Node */}
+                             <div 
+                                className="flex flex-col items-center gap-2 cursor-pointer group"
+                                onClick={() => nextStep()}
+                             >
+                                 <div className={`size-10 rounded-full flex items-center justify-center font-bold border-2 transition-all group-hover:scale-110 ${step >= 2 ? 'bg-primary text-background-dark border-primary shadow-lg shadow-primary/20' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-400'}`}>
+                                     2
+                                 </div>
+                                 <span className={`text-[10px] font-bold uppercase tracking-widest ${step >= 2 ? 'text-[#111815] dark:text-white' : 'text-gray-400'}`}>Passos</span>
+                             </div>
                          </div>
                     </div>
 
@@ -112,12 +174,14 @@ export default function CreateGoal({ auth }: PageProps) {
                                     <div className="col-span-1 md:col-span-2 space-y-2">
                                         <label className="block text-sm font-bold text-[#111815] dark:text-white">Qual o nome da sua meta?</label>
                                         <input 
-                                            className="w-full h-12 px-4 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-primary focus:border-primary transition-all" 
+                                            className={`w-full h-12 px-4 rounded-xl border-2 dark:bg-gray-900 focus:ring-primary focus:border-primary transition-all ${ (valErrors.title || errors.title) ? 'border-red-500' : 'border-gray-100 dark:border-gray-700'}`} 
                                             placeholder="Ex: Economizar para viagem, Correr 5km..." 
                                             type="text" 
+                                            maxLength={50}
                                             value={data.title}
                                             onChange={e => setData('title', e.target.value)}
                                         />
+                                        {valErrors.title && <p className="text-red-500 text-xs font-bold">{valErrors.title}</p>}
                                         {errors.title && <p className="text-red-500 text-xs">{errors.title}</p>}
                                     </div>
                                     <div className="space-y-2">
@@ -133,102 +197,8 @@ export default function CreateGoal({ auth }: PageProps) {
                                             <option value="pessoal">🧠 Pessoal</option>
                                         </select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-bold text-[#111815] dark:text-white">Frequência</label>
-                                        <div className="flex gap-2">
-                                            <button 
-                                                type="button"
-                                                onClick={() => setData('frequency', 'recurrent')}
-                                                className={`flex-1 h-12 px-4 rounded-xl border-2 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${data.frequency === 'recurrent' ? 'border-primary bg-primary/10 text-primary' : 'border-gray-100 dark:border-gray-700 text-gray-500 hover:border-gray-200'}`}
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">sync</span>
-                                                Recorrente
-                                            </button>
-                                            <button 
-                                                type="button"
-                                                onClick={() => setData('frequency', 'unique')}
-                                                className={`flex-1 h-12 px-4 rounded-xl border-2 font-bold text-sm flex items-center justify-center gap-2 transition-colors ${data.frequency === 'unique' ? 'border-primary bg-primary/10 text-primary' : 'border-gray-100 dark:border-gray-700 text-gray-500 hover:border-gray-200'}`}
-                                            >
-                                                <span className="material-symbols-outlined text-[18px]">event</span>
-                                                Única
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Step 2 Content */}
-                            {step === 2 && (
-                                <>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="block text-sm font-bold text-[#111815] dark:text-white">Data Limite (Deadline)</label>
-                                            <div className="relative">
-                                                <input 
-                                                    className="w-full h-12 px-4 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-primary focus:border-primary transition-all" 
-                                                    type="date" 
-                                                    value={data.deadline}
-                                                    onChange={e => setData('deadline', e.target.value)}
-                                                />
-                                            </div>
-                                            <p className="text-[10px] text-gray-400 italic">Quando você pretende finalizar esta meta?</p>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="block text-sm font-bold text-[#111815] dark:text-white">Valor Alvo</label>
-                                            <div className="relative">
-                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">R$</span>
-                                                <input 
-                                                    className="w-full h-12 pl-12 pr-4 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-primary focus:border-primary transition-all" 
-                                                    placeholder="0,00" 
-                                                    type="number" 
-                                                    step="0.01"
-                                                    value={data.target_value}
-                                                    onChange={e => setData('target_value', e.target.value)}
-                                                />
-                                            </div>
-                                            <p className="text-[10px] text-gray-400 italic">Preencha apenas se houver um objetivo financeiro.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-6 border-t border-gray-100 dark:border-gray-700 space-y-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-[#111815] dark:text-white mb-4">Configurações de Lembrete</label>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                 <div 
-                                                    onClick={() => setData('reminder_frequency', 'daily')}
-                                                    className={`p-4 rounded-xl border-2 flex items-start gap-3 cursor-pointer transition-colors ${data.reminder_frequency === 'daily' ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200'}`}
-                                                >
-                                                    <div className={`size-5 rounded-full border-4 mt-0.5 ${data.reminder_frequency === 'daily' ? 'border-primary bg-white' : 'border-gray-300 dark:border-gray-600'}`}></div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-[#111815] dark:text-white">Lembretes Diários</p>
-                                                        <p className="text-xs text-gray-500">Notificações todos os dias no horário escolhido.</p>
-                                                    </div>
-                                                </div>
-                                                <div 
-                                                    onClick={() => setData('reminder_frequency', 'weekly')}
-                                                    className={`p-4 rounded-xl border-2 flex items-start gap-3 cursor-pointer transition-colors ${data.reminder_frequency === 'weekly' ? 'border-primary bg-primary/5' : 'border-gray-100 dark:border-gray-700 hover:border-gray-200'}`}
-                                                >
-                                                    <div className={`size-5 rounded-full border-2 mt-0.5 ${data.reminder_frequency === 'weekly' ? 'border-primary bg-white border-4' : 'border-gray-300 dark:border-gray-600'}`}></div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-[#111815] dark:text-white">Lembretes Semanais</p>
-                                                        <p className="text-xs text-gray-500">Uma notificação por semana para check-in.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2 max-w-xs">
-                                            <label className="block text-sm font-bold text-[#111815] dark:text-white">Horário Preferencial</label>
-                                            <input 
-                                                className="w-full h-12 px-4 rounded-xl border-gray-200 dark:border-gray-700 dark:bg-gray-900 focus:ring-primary focus:border-primary transition-all" 
-                                                type="time" 
-                                                value={data.reminder_time}
-                                                onChange={e => setData('reminder_time', e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
-                                        <div className="bg-orange-50 dark:bg-orange-900/10 p-5 rounded-2xl flex items-center justify-between border border-orange-100 dark:border-orange-800/30">
+                                    <div className="col-span-1 md:col-span-2">
+                                        <div className="bg-orange-50 dark:bg-orange-900/10 p-5 rounded-2xl flex items-center justify-between border border-orange-100 dark:border-orange-800/30 w-full mt-2">
                                             <div className="flex items-center gap-4">
                                                 <div className="size-12 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-500">
                                                     <span className="material-symbols-outlined !text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
@@ -237,7 +207,7 @@ export default function CreateGoal({ auth }: PageProps) {
                                                     <label className="flex items-center gap-2 text-sm font-extrabold text-[#111815] dark:text-white cursor-pointer" htmlFor="enable-streak">
                                                         Habilitar Ofensiva para esta meta?
                                                     </label>
-                                                    <p className="text-xs text-gray-600 dark:text-gray-400">Mantenha a constância para não perder sua sequência de dias.</p>
+                                                    <p className="text-xs text-gray-600 dark:text-gray-400">Ative o sistema de streaks para manter o foco diário.</p>
                                                 </div>
                                             </div>
                                             <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out">
@@ -252,99 +222,76 @@ export default function CreateGoal({ auth }: PageProps) {
                                             </div>
                                         </div>
                                     </div>
-                                </>
+                                </div>
                             )}
 
-                            {/* Step 3 Content */}
-                            {step === 3 && (
+                            {/* Old Step 2 Removed */}
+
+                            {/* Step 2 (Micro-tasks) Content */}
+                            {step === 2 && (
                                 <div className="space-y-6">
                                     <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-4">
                                         <div>
                                             <h3 className="text-lg font-bold text-[#111815] dark:text-white">Checklist de Passos</h3>
                                             <p className="text-sm text-gray-500">Defina os marcos para atingir seu objetivo</p>
                                         </div>
-                                        <button 
-                                            type="button"
-                                            onClick={addMicroTask} 
-                                            className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-bold hover:bg-primary/20 transition-all"
-                                        >
-                                            <span className="material-symbols-outlined text-[18px]">add</span>
-                                            Adicionar Tarefa
-                                        </button>
                                     </div>
-                                    
-                                    <div className="space-y-4">
-                                        {/* New Task Input Zone */}
-                                        <div className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600 opacity-80 hover:opacity-100 transition-opacity">
-                                            <div className="flex-1">
+
+                                    {/* New Task Input Zone */}
+                                    <div className="space-y-2">
+                                        <div className="flex flex-col md:flex-row md:items-center gap-4 p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                                            <div className={`flex-1 bg-white dark:bg-gray-900 rounded-xl px-4 h-12 flex items-center border ${valErrors.new_task_title ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'} focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all`}>
                                                 <input 
-                                                    className="w-full bg-transparent border-none focus:ring-0 p-0 text-sm italic text-gray-400 placeholder:text-gray-400" 
-                                                    placeholder="Digite uma nova tarefa..." 
+                                                    className="w-full bg-transparent border-none focus:ring-0 p-0 text-sm text-[#111815] dark:text-white placeholder:text-gray-400" 
+                                                    placeholder="Ex: Abrir conta poupança..." 
                                                     type="text"
                                                     value={data.new_task_title}
-                                                    onChange={e => setData('new_task_title', e.target.value)}
+                                                    onChange={e => {
+                                                        setData('new_task_title', e.target.value);
+                                                        if (valErrors.new_task_title) {
+                                                            const newErrors = { ...valErrors };
+                                                            delete newErrors.new_task_title;
+                                                            setValErrors(newErrors);
+                                                        }
+                                                    }}
+                                                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addMicroTask())}
                                                 />
                                             </div>
-                                            <div className="w-full md:w-40">
-                                                <input 
-                                                    className="w-full bg-transparent border-none focus:ring-0 p-0 text-xs text-gray-400" 
-                                                    type="date"
-                                                    value={data.new_task_deadline}
-                                                    onChange={e => setData('new_task_deadline', e.target.value)}
-                                                />
-                                            </div>
+                                            <button 
+                                                type="button"
+                                                onClick={addMicroTask} 
+                                                className="flex items-center justify-center gap-2 bg-primary text-background-dark h-12 px-6 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 transition-all"
+                                            >
+                                                <span className="material-symbols-outlined text-[18px]">add</span>
+                                                Add
+                                            </button>
                                         </div>
-
-                                        {/* List of Tasks */}
-                                        {data.micro_tasks.map((task: any, index: number) => (
-                                            <div key={index} className="flex flex-col md:flex-row md:items-center gap-4 p-4 bg-background-light dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 group hover:border-primary/50 transition-colors">
-                                                <div className="flex-1 space-y-2">
-                                                    <label className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Título da Tarefa</label>
-                                                    <div className="text-sm font-bold text-[#111815] dark:text-white">{task.title}</div>
-                                                </div>
-                                                <div className="w-full md:w-40 space-y-2">
-                                                    <label className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Prazo</label>
-                                                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400">{task.deadline || 'Sem prazo'}</div>
-                                                </div>
-                                                <button 
-                                                    type="button" 
-                                                    onClick={() => removeMicroTask(index)}
-                                                    className="self-end md:self-center text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                                                >
-                                                    <span className="material-symbols-outlined">delete</span>
-                                                </button>
-                                            </div>
-                                        ))}
+                                        {valErrors.new_task_title && (
+                                            <p className="text-red-500 text-xs font-bold pl-2">{valErrors.new_task_title}</p>
+                                        )}
                                     </div>
-
-                                    <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
-                                        <div className="bg-orange-50 dark:bg-orange-900/10 p-5 rounded-2xl flex items-center justify-between border border-orange-100 dark:border-orange-800/30">
-                                            <div className="flex items-center gap-4">
-                                                <div className="size-12 rounded-full bg-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30">
-                                                    <span className="material-symbols-outlined !text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
-                                                </div>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <label className="block text-base font-bold text-[#111815] dark:text-white" htmlFor="enable-streak-3">
-                                                            Habilitar Ofensiva para esta meta?
-                                                        </label>
-                                                        <span className="material-symbols-outlined text-orange-500 !text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+                                    
+                                    {data.micro_tasks.length > 0 && (
+                                        <div className="space-y-4">
+                                            {/* List of Tasks */}
+                                            {data.micro_tasks.map((task: any, index: number) => (
+                                                <div key={index} className="flex items-center gap-4 p-4 bg-background-light dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 group hover:border-primary/50 transition-colors">
+                                                    <div className="flex-1 space-y-1">
+                                                        <label className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Título da Tarefa</label>
+                                                        <div className="text-sm font-bold text-[#111815] dark:text-white">{task.title}</div>
                                                     </div>
-                                                    <p className="text-sm text-gray-600 dark:text-gray-400">Ative o sistema de streaks para manter o foco diário.</p>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => removeMicroTask(index)}
+                                                        className="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <span className="material-symbols-outlined">delete</span>
+                                                    </button>
                                                 </div>
-                                            </div>
-                                            <div className="relative inline-block w-14 h-7 transition duration-200 ease-in-out">
-                                                 <input 
-                                                    id="enable-streak-3" 
-                                                    type="checkbox" 
-                                                    className="toggle-checkbox absolute block w-7 h-7 rounded-full bg-white border-4 border-gray-300 dark:border-gray-600 appearance-none cursor-pointer z-10 transition-all duration-200"
-                                                    checked={data.is_streak_enabled}
-                                                    onChange={e => setData('is_streak_enabled', e.target.checked)}
-                                                />
-                                                <label htmlFor="enable-streak-3" className="toggle-label block overflow-hidden h-7 rounded-full bg-gray-300 dark:bg-gray-700 cursor-pointer transition-colors duration-200"></label>
-                                            </div>
+                                            ))}
                                         </div>
-                                    </div>
+                                    )}
+
 
                                     <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800/30 flex gap-4">
                                         <span className="material-symbols-outlined text-blue-500">lightbulb</span>
@@ -357,7 +304,7 @@ export default function CreateGoal({ auth }: PageProps) {
                             )}
 
                             {/* Navigation Buttons */}
-                            <div className="pt-8 flex flex-col sm:flex-row gap-4 items-center justify-between border-t border-gray-100 dark:border-gray-700 mt-8">
+                            <div className="pt-8 flex flex-col sm:flex-row gap-4 items-center justify-between mt-8 border-t border-gray-100 dark:border-gray-700">
                                 {step > 1 ? (
                                     <button 
                                         type="button"
@@ -377,10 +324,10 @@ export default function CreateGoal({ auth }: PageProps) {
                                 )}
                                 
                                 <div className="order-1 sm:order-2 flex gap-3 w-full sm:w-auto">
-                                    {step < 3 ? (
+                                    {step < 2 ? (
                                         <button 
                                             type="button"
-                                            onClick={nextStep}
+                                            onClick={(e) => { e.preventDefault(); nextStep(); }}
                                             className="w-full sm:min-w-[200px] flex items-center justify-center rounded-full h-14 px-8 bg-primary text-[#111815] text-lg font-bold shadow-xl shadow-primary/30 hover:scale-[1.02] transition-all"
                                         >
                                             Próximo Passo
@@ -391,7 +338,7 @@ export default function CreateGoal({ auth }: PageProps) {
                                             disabled={processing}
                                             className="w-full sm:min-w-[200px] flex items-center justify-center rounded-full h-14 px-8 bg-primary text-[#111815] text-lg font-bold shadow-xl shadow-primary/30 hover:scale-[1.02] transition-all"
                                         >
-                                            Finalizar e Criar Meta
+                                            {isEditing ? 'Salvar Alterações' : 'Finalizar e Criar Meta'}
                                         </button>
                                     )}
                                 </div>

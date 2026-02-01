@@ -29,6 +29,28 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['current_xp'];
+
+    public function experiences()
+    {
+        return $this->hasMany(Experience::class);
+    }
+
+    public function goals()
+    {
+        return $this->hasMany(Goal::class);
+    }
+
+    public function getCurrentXpAttribute()
+    {
+        return (int)$this->experiences()->sum('amount');
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

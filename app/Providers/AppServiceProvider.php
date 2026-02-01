@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,8 +23,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        \Illuminate\Validation\Rules\Password::defaults(function () {
-            return \Illuminate\Validation\Rules\Password::min(8)
+        Password::defaults(function () {
+            return Password::min(8)
                 ->letters()
                 ->mixedCase()
                 ->numbers()

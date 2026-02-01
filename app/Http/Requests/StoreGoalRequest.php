@@ -14,15 +14,39 @@ class StoreGoalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
+            'title' => [
+                'required',
+                'string',
+                'max:50',
+                \Illuminate\Validation\Rule::unique('goals')->where(function ($query) {
+                    return $query->where('user_id', $this->user()->id);
+                })->ignore($this->route('goal') ?? $this->route('meta')),
+            ],
             'category' => 'required|string',
-            'frequency' => 'required|in:unique,recurrent',
-            'deadline' => 'required|date',
-            'target_value' => 'nullable|numeric',
-            'is_streak_enabled' => 'boolean',
-            'micro_tasks' => 'nullable|array',
+            'is_streak_enabled' => [
+                'boolean',
+                function ($attribute, $value, $fail) {
+                    $microTasks = $this->input('micro_tasks');
+                    if (!$value && (empty($microTasks) || count($microTasks) === 0)) {
+                        $fail('A meta precisa ter pelo menos uma sub-tarefa OU o sistema de ofensivas ativado.');
+                    }
+                }
+            ],
+            'micro_tasks' => [
+                'nullable',
+                'array',
+                function ($attribute, $value, $fail) {
+                    if (!empty($value)) {
+                        $titles = array_column($value, 'title');
+                        // Case insensitive check for duplicates
+                        $uniqueTitles = array_unique(array_map('mb_strtolower', $titles));
+                        if (count($titles) !== count($uniqueTitles)) {
+                            $fail('As micro-tarefas não podem ter títulos repetidos.');
+                        }
+                    }
+                }
+            ],
             'micro_tasks.*.title' => 'required|string',
-            'micro_tasks.*.deadline' => 'nullable|date',
         ];
     }
 
@@ -31,9 +55,6 @@ class StoreGoalRequest extends FormRequest
         return [
             'title' => 'título',
             'category' => 'categoria',
-            'frequency' => 'frequência',
-            'deadline' => 'prazo',
-            'target_value' => 'valor alvo',
             'is_streak_enabled' => 'habilitar ofensiva',
             'micro_tasks' => 'micro-tarefas',
             'micro_tasks.*.title' => 'título da micro-tarefa',

@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\SupportTicketController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -77,11 +78,11 @@ Route::prefix('suporte')->name('support.')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::middleware('verified')->group(function () {
-        Route::get('/dashboard', function () {
-            return Inertia::render('Dashboard');
-        })->name('dashboard');
-
-        Route::resource('goals', GoalController::class);
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/metas/{goal}/streak', [GoalController::class, 'completeStreak'])->name('goals.streak');
+        Route::patch('/metas/{goal}/deactivate', [GoalController::class, 'deactivate'])->name('goals.deactivate');
+        Route::patch('/micro-tasks/{microTask}/toggle', [GoalController::class, 'toggleMicroTask'])->name('micro-tasks.toggle');
+        Route::resource('metas', GoalController::class)->names('goals');
     });
 
     Route::get('/conquistas', function () {

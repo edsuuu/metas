@@ -30,17 +30,7 @@ export default function Pricing() {
             });
 
             // Pricing cards - simple fade reveal
-            gsap.from(".pricing-card", {
-                scrollTrigger: {
-                    trigger: ".pricing-grid",
-                    start: "top 90%",
-                },
-                y: 20,
-                opacity: 0,
-                duration: 0.6,
-                stagger: 0.1,
-                ease: "power2.out"
-            });
+            // Pricing cards animation removed by user request
 
             // FAQ section - simple fade
             gsap.from(".faq-item", {
