@@ -5,12 +5,15 @@ use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SocialController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
+use App\Http\Controllers\FileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Middleware\AuditAdminAccess;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -66,6 +69,7 @@ Route::prefix('termos')->group(function () {
     })->name('terms.responsibilities');
 });
 
+Route::get('/files/{uuid}', [FileController::class, 'show'])->name('files.show');
 
 Route::prefix('suporte')->name('support.')->group(function () {
     Route::get('/meus-chamados', [SupportTicketController::class, 'myTickets'])->name('my-tickets');
@@ -84,9 +88,31 @@ Route::middleware('auth')->group(function () {
     Route::middleware('verified')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::post('/metas/{goal}/streak', [GoalController::class, 'completeStreak'])->name('goals.streak');
+        Route::post('/metas/{goal}/complete', [GoalController::class, 'complete'])->name('goals.complete');
         Route::patch('/metas/{goal}/deactivate', [GoalController::class, 'deactivate'])->name('goals.deactivate');
         Route::patch('/micro-tasks/{microTask}/toggle', [GoalController::class, 'toggleMicroTask'])->name('micro-tasks.toggle');
         Route::resource('metas', GoalController::class)->names('goals');
+
+        // Social Routes
+        Route::prefix('social')->name('social.')->group(function () {
+            Route::get('/', [SocialController::class, 'index'])->name('index');
+            Route::get('/feed', [SocialController::class, 'feed'])->name('feed');
+            Route::post('/feed', [SocialController::class, 'storePost'])->name('post.store');
+            Route::get('/perfil/{identifier?}', [SocialController::class, 'profile'])->name('profile');
+            Route::post('/perfil/avatar', [SocialController::class, 'updateAvatar'])->name('profile.avatar');
+            Route::post('/request/{userId}', [SocialController::class, 'sendRequest'])->name('request.send');
+            Route::post('/unfollow/{userId}', [SocialController::class, 'unfollow'])->name('unfollow');
+            Route::post('/request/{friendshipId}/accept', [SocialController::class, 'acceptRequest'])->name('request.accept');
+            Route::post('/request/{friendshipId}/decline', [SocialController::class, 'declineRequest'])->name('request.decline');
+            Route::post('/post/{postId}/like', [SocialController::class, 'toggleLike'])->name('post.like');
+            Route::post('/post/{postId}/comment', [SocialController::class, 'storeComment'])->name('post.comment');
+            Route::post('/post/{postId}/report', [SocialController::class, 'reportPost'])->name('post.report');
+            Route::post('/post/{postId}/hide', [SocialController::class, 'hidePost'])->name('post.hide');
+            Route::get('/post/{postId}', [SocialController::class, 'showPost'])->name('post.show');
+            Route::delete('/post/{postId}', [SocialController::class, 'deletePost'])->name('post.delete');
+            Route::patch('/post/{postId}', [SocialController::class, 'updatePost'])->name('post.update');
+            Route::get('/status', [SocialController::class, 'getSocialStatus'])->name('status');
+        });
     });
 
 /*     Route::get('/conquistas', function () {
@@ -102,7 +128,7 @@ Route::middleware('auth')->group(function () {
     // Admin Routes
     Route::prefix('admin')->name('admin.')->middleware(['audit.admin', 'role_or_permission:Administrador|Suporte'])->group(function () {
         Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-        
+
         Route::prefix('usuarios')->name('users.')->group(function () {
             Route::get('/', [AdminUserController::class, 'index'])->name('index');
         });
@@ -112,6 +138,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/{ticket}', [AdminTicketController::class, 'show'])->name('show');
             Route::post('/{ticket}/responder', [AdminTicketController::class, 'reply'])->name('reply');
             Route::post('/{ticket}/fechar', [AdminTicketController::class, 'close'])->name('close');
+        });
+
+        Route::prefix('denuncias')->name('reports.')->group(function () {
+            Route::get('/', [AdminReportController::class, 'index'])->name('index');
+            Route::post('/{report}/resolver', [AdminReportController::class, 'resolve'])->name('resolve');
         });
     });
 });

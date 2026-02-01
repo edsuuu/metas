@@ -19,6 +19,7 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
         title: goal?.title || '',
         category: goal?.category || 'saude',
         is_streak_enabled: goal?.is_streak_enabled || false,
+        deadline: goal?.deadline ? goal.deadline.split('T')[0] : '', // Format for date input
         
         // Step 2 (Former Step 3)
         micro_tasks: goal?.micro_tasks?.map((t: any) => ({ title: t.title })) || [] as { title: string }[],
@@ -64,7 +65,7 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
         if (!data.is_streak_enabled && data.micro_tasks.length === 0) {
             setValErrors({ 
                 ...valErrors, 
-                micro_tasks: 'A meta precisa ter pelo menos uma sub-tarefa OU o sistema de ofensivas ativado.' 
+                micro_tasks: 'A meta precisa ter pelo menos uma sub-tarefa ou o sistema de ofensivas ativado.' 
             });
             return;
         }
@@ -93,7 +94,6 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                 { title: title }
             ];
             
-            // Clear specific error if adding a non-duplicate
             if (valErrors.new_task_title || valErrors.micro_tasks) {
                 const newErrors = { ...valErrors };
                 delete newErrors.new_task_title;
@@ -118,8 +118,6 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
     return (
         <AuthenticatedLayout>
             <Head title="Nova Meta" />
-
-
 
             <main className="max-w-[1200px] mx-auto px-4 py-12 flex-grow w-full">
                 <div className="max-w-3xl mx-auto">
@@ -198,44 +196,84 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                                             <option value="pessoal">🧠 Pessoal</option>
                                         </select>
                                     </div>
-                                    <div className="col-span-1 md:col-span-2">
-                                        <div className="bg-orange-50 dark:bg-orange-900/10 p-5 rounded-2xl flex items-center justify-between border border-orange-100 dark:border-orange-800/30 w-full mt-2">
-                                            <div className="flex items-center gap-4">
-                                                <div className="size-12 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center text-orange-500">
-                                                    <span className="material-symbols-outlined !text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+                                    <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Streak Option */}
+                                        <div className={`p-5 rounded-2xl border transition-all ${data.is_streak_enabled ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-100 dark:border-orange-800/30' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-700 opacity-60 hover:opacity-100'}`}>
+                                            <div className="flex items-center justify-between w-full h-full">
+                                                <div className="flex items-center gap-4 flex-1">
+                                                    <div className={`size-12 rounded-full flex items-center justify-center transition-colors ${data.is_streak_enabled ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-500' : 'bg-gray-200 dark:bg-gray-800 text-gray-400'}`}>
+                                                        <span className="material-symbols-outlined !text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+                                                    </div>
+                                                    <div>
+                                                        <label className="flex items-center gap-2 text-sm font-extrabold text-[#111815] dark:text-white cursor-pointer" htmlFor="enable-streak">
+                                                            Habilitar Ofensiva?
+                                                        </label>
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Foco diário contínuo.</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <label className="flex items-center gap-2 text-sm font-extrabold text-[#111815] dark:text-white cursor-pointer" htmlFor="enable-streak">
-                                                        Habilitar Ofensiva para esta meta?
-                                                    </label>
-                                                    <p className="text-xs text-gray-600 dark:text-gray-400">Ative o sistema de streaks para manter o foco diário.</p>
+                                                <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out shrink-0">
+                                                    <input 
+                                                        id="enable-streak" 
+                                                        type="checkbox" 
+                                                        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 dark:border-gray-600 appearance-none cursor-pointer z-10 transition-all duration-200"
+                                                        checked={data.is_streak_enabled}
+                                                        onChange={e => {
+                                                            const checked = e.target.checked;
+                                                            setData(prev => ({
+                                                                ...prev,
+                                                                is_streak_enabled: checked,
+                                                                deadline: checked ? '' : prev.deadline // Reset deadline if enabling streak
+                                                            }));
+                                                            if (checked && valErrors.micro_tasks) {
+                                                                const newErrors = { ...valErrors };
+                                                                delete newErrors.micro_tasks;
+                                                                setValErrors(newErrors);
+                                                            }
+                                                        }}
+                                                    />
+                                                    <label htmlFor="enable-streak" className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer transition-colors duration-200 ${data.is_streak_enabled ? 'bg-orange-500' : 'bg-gray-300 dark:bg-gray-700'}`}></label>
                                                 </div>
                                             </div>
-                                            <div className="relative inline-block w-12 h-6 transition duration-200 ease-in-out">
-                                                <input 
-                                                    id="enable-streak" 
-                                                    type="checkbox" 
-                                                    className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 dark:border-gray-600 appearance-none cursor-pointer z-10 transition-all duration-200"
-                                                    checked={data.is_streak_enabled}
-                                                    onChange={e => {
-                                                        setData('is_streak_enabled', e.target.checked);
-                                                        if (e.target.checked && valErrors.micro_tasks) {
-                                                            const newErrors = { ...valErrors };
-                                                            delete newErrors.micro_tasks;
-                                                            setValErrors(newErrors);
-                                                        }
-                                                    }}
-                                                />
-                                                <label htmlFor="enable-streak" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-700 cursor-pointer transition-colors duration-200"></label>
+                                        </div>
+
+                                        {/* Deadline Option */}
+                                        <div className={`p-5 rounded-2xl border transition-all ${data.deadline ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30' : 'bg-gray-50 dark:bg-gray-900/50 border-gray-100 dark:border-gray-700 opacity-60 hover:opacity-100'}`}>
+                                            <div className="flex flex-col gap-4 w-full">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className={`size-12 rounded-full flex items-center justify-center transition-colors ${data.deadline ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-500' : 'bg-gray-200 dark:bg-gray-800 text-gray-400'}`}>
+                                                            <span className="material-symbols-outlined !text-[28px]">event</span>
+                                                        </div>
+                                                        <div>
+                                                            <label className="flex items-center gap-2 text-sm font-extrabold text-[#111815] dark:text-white cursor-pointer">
+                                                                Habilitar Data Final?
+                                                            </label>
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400">Defina um prazo para conclusão.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="relative">
+                                                     <input 
+                                                        type="date"
+                                                        className={`w-full h-10 px-4 rounded-lg border text-sm transition-all dark:bg-gray-900 ${data.deadline ? 'border-blue-200 dark:border-blue-800 focus:ring-blue-500' : 'border-gray-200 dark:border-gray-700 text-gray-400'}`}
+                                                        value={data.deadline || ''}
+                                                        onChange={e => {
+                                                            const date = e.target.value;
+                                                            setData(prev => ({
+                                                                ...prev,
+                                                                deadline: date,
+                                                                is_streak_enabled: date ? false : prev.is_streak_enabled // Disable streak if setting deadline
+                                                            }));
+                                                        }}
+                                                     />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Old Step 2 Removed */}
-
-                            {/* Step 2 (Micro-tasks) Content */}
                             {step === 2 && (
                                 <div className="space-y-6">
                                     <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-4">
@@ -245,7 +283,6 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                                         </div>
                                     </div>
 
-                                    {/* New Task Input Zone */}
                                     <div className="space-y-2">
                                         <div className="flex flex-col md:flex-row md:items-center gap-4 p-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
                                             <div className={`flex-1 bg-white dark:bg-gray-900 rounded-xl px-4 h-12 flex items-center border ${valErrors.new_task_title ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'} focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all`}>
@@ -281,7 +318,6 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                                     
                                     {data.micro_tasks.length > 0 && (
                                         <div className="space-y-4">
-                                            {/* List of Tasks */}
                                             {data.micro_tasks.map((task: any, index: number) => (
                                                 <div key={index} className="flex items-center gap-4 p-4 bg-background-light dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-700 group hover:border-primary/50 transition-colors">
                                                     <div className="flex-1 space-y-1">
@@ -311,7 +347,6 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                                 </div>
                             )}
 
-                            {/* Global Validation Errors (Streak or Subtasks) */}
                             {(valErrors.micro_tasks || errors.is_streak_enabled || errors.micro_tasks) && (
                                 <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
                                     <span className="material-symbols-outlined">error</span>
@@ -321,7 +356,6 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                                 </div>
                             )}
 
-                            {/* Navigation Buttons */}
                             <div className="pt-8 flex flex-col sm:flex-row gap-4 items-center justify-between mt-8 border-t border-gray-100 dark:border-gray-700">
                                 {step > 1 ? (
                                     <button 

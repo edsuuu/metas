@@ -99,10 +99,10 @@ export default function SupportIndex() {
                     <div className="max-w-[800px] mx-auto text-center support-hero">
                         <h1 className="text-4xl md:text-5xl font-black text-[#111815] dark:text-white mb-6 tracking-tight">Central de Ajuda</h1>
                         <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">Tudo o que você precisa para conquistar seus objetivos sem obstáculos.</p>
-                        <div className="relative max-w-2xl mx-auto group">
+                        {/* <div className="relative max-w-2xl mx-auto group">
                             <span className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-2xl group-focus-within:text-primary transition-colors">search</span>
                             <input className="w-full pl-16 pr-6 h-16 rounded-full bg-white dark:bg-gray-800 border-2 border-[#dbe6e1] dark:border-gray-700 focus:border-primary focus:ring-0 text-lg shadow-xl shadow-primary/5 transition-all outline-none" placeholder="Como podemos te ajudar?" type="text" />
-                        </div>
+                        </div> */}
                     </div>
                 </section>
 

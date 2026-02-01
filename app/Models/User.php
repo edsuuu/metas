@@ -27,8 +27,8 @@ class User extends Authenticatable implements Auditable
         'nickname',
         'email',
         'password',
-        'avatar_url',
         'google_id',
+        // 'avatar_url', // Removed in favor of polymorphic relationship
     ];
 
     /**
@@ -36,7 +36,7 @@ class User extends Authenticatable implements Auditable
      *
      * @var array
      */
-    protected $appends = ['current_xp'];
+    protected $appends = ['current_xp', 'avatar_url'];
 
     public function experiences()
     {
@@ -46,6 +46,25 @@ class User extends Authenticatable implements Auditable
     public function goals()
     {
         return $this->hasMany(Goal::class);
+    }
+
+    public function avatar()
+    {
+        return $this->morphOne(File::class, 'fileable')->latest();
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        // Check if there is an avatar file linked
+        $avatar = $this->avatar;
+        if ($avatar) {
+            return route('files.show', $avatar->uuid);
+        }
+
+        // Check if there is a google_avatar stored in session or we can fallback to UI Avatars
+        // For now, return null or a default generator URL if needed by frontend
+        // But frontend handles null with UI Avatars, so returning null is fine.
+        return null; 
     }
 
     public function getCurrentXpAttribute()

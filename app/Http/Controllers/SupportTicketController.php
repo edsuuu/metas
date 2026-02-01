@@ -14,7 +14,9 @@ use Illuminate\Support\Str;
 use App\Http\Requests\StoreSupportTicketRequest;
 use App\Http\Requests\RequestSupportAccessRequest;
 use App\Http\Requests\VerifySupportCodeRequest;
+use App\Http\Requests\StoreSupportTicketReplyRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class SupportTicketController extends Controller
 {
@@ -24,6 +26,7 @@ class SupportTicketController extends Controller
     public function store(StoreSupportTicketRequest $request)
     {
         try {
+            DB::beginTransaction();
             $validated = $request->validated();
 
             $ticket = SupportTicket::query()->create([
@@ -34,8 +37,10 @@ class SupportTicketController extends Controller
                 'status' => 'pending',
             ]);
 
+            DB::commit();
             return Redirect::back()->with('success', 'Chamado criado com sucesso! Protocolo: ' . $ticket->protocol);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Erro ao criar chamado de suporte: ' . $e->getMessage(), [
                 'request' => $request->all(),
                 'exception' => $e
@@ -190,16 +195,12 @@ class SupportTicketController extends Controller
         ]);
     }
 
-    public function reply(Request $request, SupportTicket $ticket)
+    public function reply(StoreSupportTicketReplyRequest $request, SupportTicket $ticket)
     {
         try {
             if (!session('support_verified')) {
                 abort(401);
             }
-
-            $request->validate([
-                'message' => 'required|string',
-            ]);
 
             if ($ticket->status === 'resolved' || $ticket->status === 'closed') {
                 return Redirect::back()->with('error', 'Este chamado já foi finalizado e não aceita mais respostas.');
@@ -210,17 +211,22 @@ class SupportTicketController extends Controller
                 abort(403);
             }
 
-            SupportTicketReply::create([
+            DB::beginTransaction();
+
+            SupportTicketReply::query()->create([
                 'support_ticket_id' => $ticket->id,
                 'user_id' => auth()->id(),
-                'message' => $request->message,
+                'message' => $request->input('message'),
                 'is_admin' => false,
             ]);
 
             $ticket->update(['status' => 'pending']); // Back to pending when user replies
 
+            DB::commit();
+
             return Redirect::back()->with('success', 'Sua resposta foi enviada!');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Erro ao responder chamado: ' . $e->getMessage());
             return Redirect::back()->withErrors(['message' => 'Erro ao enviar resposta.']);
         }

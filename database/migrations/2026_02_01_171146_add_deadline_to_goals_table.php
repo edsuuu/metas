@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('streaks', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('goal_id')->constrained()->onDelete('cascade');
-            $table->timestamps();
+        Schema::table('goals', function (Blueprint $table) {
+            $table->timestamp('deadline')->nullable()->after('is_streak_enabled');
+            $table->timestamp('completed_at')->nullable()->after('last_completed_at');
         });
     }
 
@@ -23,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('streaks');
+        Schema::table('goals', function (Blueprint $table) {
+            $table->dropColumn(['deadline', 'completed_at']);
+        });
     }
 };

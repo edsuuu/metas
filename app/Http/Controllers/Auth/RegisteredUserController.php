@@ -19,6 +19,8 @@ use App\Http\Requests\Auth\RegisterUserRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use App\Services\FileService;
+
 class RegisteredUserController extends Controller
 {
     /**
@@ -44,16 +46,34 @@ class RegisteredUserController extends Controller
         DB::beginTransaction();
 
         try {
-            $user = User::query()->create([
+            $socialUser = session('social_user');
+            
+            Log::info('Tentativa de registro', [
+                'has_social_user' => (bool) $socialUser,
+                'email' => $request->email,
+                'nickname' => $request->nickname
+            ]);
+
+            $userData = [
                 'name' => $request->nickname, // Use nickname as name for now
                 'nickname' => $request->nickname,
                 'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'google_id' => session('social_user.google_id'),
-                'avatar_url' => session('social_user.avatar_url'),
-            ]);
+                'password' => $request->password ? Hash::make($request->password) : null,
+            ];
 
-            if (session('social_user')) {
+            if ($socialUser) {
+                $userData['google_id'] = $socialUser['google_id'];
+                $userData['email_verified_at'] = now(); // Google emails are verified
+            }
+
+            $user = User::query()->create($userData);
+
+            // Handle Avatar
+            if ($socialUser && !empty($socialUser['avatar_url'])) {
+                app(FileService::class)->saveFromUrl($socialUser['avatar_url'], $user, 'avatar');
+            }
+
+            if ($socialUser) {
                 session()->forget('social_user');
             }
 

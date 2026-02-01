@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { PageProps } from '@/types';
 import { useState } from 'react';
 
@@ -13,11 +13,32 @@ interface Goal {
     target_value: number | null;
     is_streak_enabled: boolean;
     status: string;
-    micro_tasks?: { id: number; title: string; is_completed: boolean }[];
+    micro_tasks: { id: number; title: string; is_completed: boolean }[];
 }
 
-export default function GoalsIndex({ auth, goals }: PageProps & { goals: Goal[] }) {
+interface GoalsIndexProps extends PageProps {
+    goals: Goal[];
+}
+
+export default function GoalsIndex({ auth, goals }: GoalsIndexProps) {
     const [search, setSearch] = useState('');
+    const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
+
+    const toggleMicroTask = (id: number) => {
+        router.patch(route('micro-tasks.toggle', id), {}, {
+            preserveScroll: true,
+        });
+    };
+
+    const getCategoryStyles = (category: string) => {
+        const styles: Record<string, { icon: string, color: string, bg: string, bar: string }> = {
+            saude: { icon: 'fitness_center', color: 'text-green-500', bg: 'bg-green-100 dark:bg-green-900/30', bar: 'bg-green-500' },
+            financeiro: { icon: 'payments', color: 'text-blue-500', bg: 'bg-blue-100 dark:bg-blue-900/30', bar: 'bg-blue-500' },
+            carreira: { icon: 'rocket_launch', color: 'text-purple-500', bg: 'bg-purple-100 dark:bg-purple-900/30', bar: 'bg-purple-500' },
+            pessoal: { icon: 'psychology', color: 'text-orange-500', bg: 'bg-orange-100 dark:bg-orange-900/30', bar: 'bg-orange-500' },
+        };
+        return styles[category] || { icon: 'flag', color: 'text-primary', bg: 'bg-primary/10', bar: 'bg-primary' };
+    };
 
     const filteredGoals = goals.filter(goal => 
         goal.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -79,80 +100,114 @@ export default function GoalsIndex({ auth, goals }: PageProps & { goals: Goal[] 
                         <p className="text-gray-500 dark:text-gray-400 max-w-xs mx-auto">Não encontramos metas que correspondam à sua busca "{search}".</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredGoals.map((goal) => (
-                            <div key={goal.id} className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-[#dbe6e1] dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className={`size-12 rounded-xl flex items-center justify-center shadow-sm ${
-                                            goal.category === 'saude' ? 'bg-green-100 dark:bg-green-900/30 text-green-500' :
-                                            goal.category === 'financeiro' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-500' :
-                                            goal.category === 'carreira' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-500' :
-                                            'bg-gray-100 dark:bg-gray-900/30 text-gray-500'
-                                        }`}>
-                                            <span className="material-symbols-outlined">
-                                                {goal.category === 'saude' ? 'fitness_center' :
-                                                 goal.category === 'financeiro' ? 'payments' :
-                                                 goal.category === 'carreira' ? 'rocket_launch' : 'psychology'}
-                                            </span>
+                    <div className="columns-1 md:columns-2 lg:columns-3 gap-6">
+                        {filteredGoals.map((goal) => {
+                            const styles = getCategoryStyles(goal.category);
+                            const totalTasks = goal.micro_tasks?.length || 0;
+                            const completedTasks = goal.micro_tasks?.filter(t => !!t.is_completed).length || 0;
+                            const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+                            return (
+                                <div key={goal.id} className="break-inside-avoid mb-6 bg-white dark:bg-gray-800 rounded-3xl p-6 border border-[#dbe6e1] dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group">
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`size-12 rounded-xl flex items-center justify-center shadow-sm ${styles.bg} ${styles.color}`}>
+                                                <span className="material-symbols-outlined">{styles.icon}</span>
+                                            </div>
+                                            <Link href={route('goals.show', goal.id)}>
+                                                <h4 className="font-bold dark:text-white group-hover:text-primary transition-colors">{goal.title}</h4>
+                                                <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{goal.category}</p>
+                                            </Link>
                                         </div>
-                                        <div>
-                                            <h4 className="font-bold dark:text-white group-hover:text-primary transition-colors">{goal.title}</h4>
-                                            <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{goal.category}</p>
+                                        <div className="text-right">
+                                            {totalTasks > 0 && (
+                                                <span className={`text-sm font-black ${styles.color}`}>{progress}%</span>
+                                            )}
+                                            {goal.is_streak_enabled && (
+                                                <div className="flex items-center justify-end gap-1 text-orange-500 mt-1">
+                                                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                    {goal.is_streak_enabled && (
-                                        <div className="flex items-center gap-1 text-orange-500">
-                                            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+                                    
+                                    {totalTasks > 0 && (
+                                        <div className="w-full h-2.5 bg-gray-200/60 dark:bg-gray-700 rounded-full mb-6 relative overflow-hidden border border-gray-100 dark:border-gray-800">
+                                            <div
+                                                className={`h-full ${styles.bar} rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,0,0,0.1)]`}
+                                                style={{ width: `${progress}%` }}
+                                            ></div>
                                         </div>
                                     )}
-                                </div>
-                                
-                                {goal.target_value && (
-                                    <div className="mb-4">
-                                        <p className="text-[10px] text-gray-400 font-bold mb-1 uppercase">Valor Alvo</p>
-                                        <p className="text-sm font-black text-blue-600 dark:text-blue-400">R$ {Number(goal.target_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                                    </div>
-                                )}
 
-                                {goal.deadline && (
-                                    <div className="mb-6">
-                                        <p className="text-[10px] text-gray-400 font-bold mb-1 uppercase">Deadline</p>
-                                        <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-xs text-gray-400">calendar_today</span>
-                                            <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
-                                                {new Date(goal.deadline).toLocaleDateString('pt-BR')}
-                                            </span>
+                                    {goal.target_value && (
+                                        <div className="mb-4">
+                                            <p className="text-[10px] text-gray-400 font-bold mb-1 uppercase">Valor Alvo</p>
+                                            <p className="text-sm font-black text-blue-600 dark:text-blue-400">R$ {Number(goal.target_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
-                                {goal.micro_tasks && goal.micro_tasks.length > 0 && (
-                                    <div className="space-y-2 border-t border-gray-50 dark:border-gray-700/50 pt-4">
-                                        {goal.micro_tasks.slice(0, 3).map((task, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 opacity-70">
-                                                <div className={`size-4 rounded border ${task.is_completed ? 'bg-primary border-primary flex items-center justify-center' : 'border-gray-200 dark:border-gray-600'}`}>
-                                                    {task.is_completed && <span className="material-symbols-outlined text-[10px] text-background-dark font-black">check</span>}
-                                                </div>
-                                                <span className={`text-[11px] font-medium dark:text-gray-300 truncate ${task.is_completed ? 'line-through opacity-50' : ''}`}>{task.title}</span>
+                                    {goal.deadline && (
+                                        <div className="mb-4">
+                                            <p className="text-[10px] text-gray-400 font-bold mb-1 uppercase">Deadline</p>
+                                            <div className="flex items-center gap-2">
+                                                <span className="material-symbols-outlined text-xs text-gray-400">calendar_today</span>
+                                                <span className="text-xs font-bold text-gray-600 dark:text-gray-300">
+                                                    {new Date(goal.deadline).toLocaleDateString('pt-BR')}
+                                                </span>
                                             </div>
-                                        ))}
-                                        {goal.micro_tasks.length > 3 && (
-                                            <p className="text-[10px] text-primary font-bold pt-1">+ {goal.micro_tasks.length - 3} outras tarefas</p>
-                                        )}
-                                    </div>
-                                )}
+                                        </div>
+                                    )}
 
-                                <div className="mt-6">
-                                    <Link 
-                                        href={route('goals.show', goal.id)}
-                                        className="w-full h-10 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center"
-                                    >
-                                        Ver Detalhes
-                                    </Link>
+                                    {totalTasks > 0 && (
+                                        <div className="space-y-3 border-t border-gray-50 dark:border-gray-700/50 pt-4 mb-6">
+                                            {(expandedCards[goal.id] ? goal.micro_tasks : goal.micro_tasks.slice(0, 3)).map((task) => (
+                                                <div 
+                                                    key={task.id} 
+                                                    className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer transition-colors"
+                                                    onClick={() => toggleMicroTask(task.id)}
+                                                >
+                                                    <input
+                                                        readOnly
+                                                        checked={!!task.is_completed}
+                                                        className={`rounded border-gray-300 ${styles.color.replace('text-', 'text-')} focus:ring-current pointer-events-none`}
+                                                        type="checkbox"
+                                                    />
+                                                    <span className={`text-[11px] font-medium dark:text-gray-300 truncate ${task.is_completed ? 'line-through opacity-50' : ''}`}>
+                                                        {task.title}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                            
+                                            {totalTasks > 3 && (
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        setExpandedCards(prev => ({ ...prev, [goal.id]: !prev[goal.id] }));
+                                                    }}
+                                                    className="w-full mt-2 py-2 px-3 flex items-center justify-between text-[11px] font-bold text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all border border-transparent hover:border-primary/10"
+                                                >
+                                                    <span>{expandedCards[goal.id] ? 'Ver menos' : `+ ${totalTasks - 3} outras tarefas`}</span>
+                                                    <span className={`material-symbols-outlined text-sm transition-transform ${expandedCards[goal.id] ? 'rotate-180' : ''}`}>
+                                                        keyboard_arrow_down
+                                                    </span>
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="mt-auto">
+                                        <Link 
+                                            href={route('goals.show', goal.id)}
+                                            className="w-full h-10 border-2 border-gray-100 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-500 hover:border-primary hover:text-primary transition-all flex items-center justify-center"
+                                        >
+                                            Ver Detalhes
+                                        </Link>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </main>

@@ -11,6 +11,7 @@ interface Goal {
     title: string;
     category: string;
     deadline: string | null;
+    completed_at: string | null;
     target_value: number | null;
     is_streak_enabled: boolean;
     current_streak: number;
@@ -219,6 +220,40 @@ export default function GoalShow({ auth, goal, can_complete_streak }: Props) {
                             </div>
                         )}
 
+                        {goal.deadline && (
+                            <div className="bg-[#111815] dark:bg-black rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl shadow-blue-500/10">
+                                <div className="relative z-10 text-center">
+                                    <div className="size-24 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-500 mx-auto flex items-center justify-center mb-6 shadow-xl shadow-blue-500/40">
+                                        <span className="material-symbols-outlined !text-[48px]">flag</span>
+                                    </div>
+                                    <h3 className="text-2xl font-black mb-2">{goal.status === 'completed' ? 'Meta Concluída!' : 'Meta com Prazo'}</h3>
+                                    <p className="text-blue-200/60 text-sm font-medium mb-8">
+                                        {goal.status === 'completed' 
+                                            ? 'Parabéns! Você alcançou seu objetivo.' 
+                                            : `Prazo final: ${new Date(goal.deadline).toLocaleDateString('pt-BR')}`
+                                        }
+                                    </p>
+                                    
+                                    {goal.status !== 'completed' ? (
+                                        <button 
+                                            onClick={() => router.post(route('goals.complete', goal.id))}
+                                            disabled={processing}
+                                            className="w-full h-14 bg-white text-[#111815] rounded-2xl font-black text-lg hover:bg-blue-50 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-xl"
+                                        >
+                                            <span className="material-symbols-outlined">check_circle</span>
+                                            Concluir Meta
+                                        </button>
+                                    ) : (
+                                        <div className="w-full h-14 bg-white/10 rounded-2xl flex items-center justify-center gap-3 text-white/50 border border-white/5">
+                                            <span className="material-symbols-outlined text-green-500">verified</span>
+                                            <span className="font-bold">Concluída em {goal.completed_at && new Date(goal.completed_at).toLocaleDateString('pt-BR')}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/20 rounded-full blur-[80px]"></div>
+                            </div>
+                        )}
+
                         <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 border border-[#dbe6e1] dark:border-gray-700 shadow-sm">
                             <h4 className="font-bold dark:text-white mb-6">Informações</h4>
                             <div className="space-y-4">
@@ -239,30 +274,41 @@ export default function GoalShow({ auth, goal, can_complete_streak }: Props) {
                             </div>
                             
                             <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-700 space-y-3">
-                                <Link 
-                                    href={route('goals.edit', goal.id)}
-                                    className="w-full h-12 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <span className="material-symbols-outlined text-lg">edit</span>
-                                    Editar Meta
-                                </Link>
-                                <button 
-                                    onClick={() => setShowDeactivateModal(true)}
-                                    disabled={processing}
-                                    className="w-full h-12 rounded-xl text-sm font-bold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <span className="material-symbols-outlined text-lg">archive</span>
-                                    Desativar Meta
-                                </button>
-                                <button 
-                                    onClick={() => setShowDeleteModal(true)}
-                                    disabled={processing}
-                                    className="w-full h-12 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <span className="material-symbols-outlined text-lg">delete</span>
-                                    Excluir Meta
-                                </button>
-                            </div>
+                                    <Link 
+                                        href={route('goals.edit', goal.id)}
+                                        className="w-full h-12 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">edit</span>
+                                        Editar Meta
+                                    </Link>
+                                    
+                                    {!(goal.deadline && goal.status === 'completed') && (
+                                        <>
+                                            <button 
+                                                onClick={() => setShowDeactivateModal(true)}
+                                                disabled={processing}
+                                                className="w-full h-12 rounded-xl text-sm font-bold text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">archive</span>
+                                                Desativar Meta
+                                            </button>
+                                            <button 
+                                                onClick={() => setShowDeleteModal(true)}
+                                                disabled={processing}
+                                                className="w-full h-12 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors flex items-center justify-center gap-2"
+                                            >
+                                                <span className="material-symbols-outlined text-lg">delete</span>
+                                                Excluir Meta
+                                            </button>
+                                        </>
+                                    )}
+
+                                    {(goal.deadline && goal.status === 'completed') && (
+                                        <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl text-center">
+                                             <p className="text-xs text-gray-400">Esta meta foi concluída e arquivada no seu histórico de conquistas.</p>
+                                        </div>
+                                    )}
+                                </div>
                         </div>
                     </div>
                 </div>

@@ -27,11 +27,18 @@ class StoreGoalRequest extends FormRequest
                 'boolean',
                 function ($attribute, $value, $fail) {
                     $microTasks = $this->input('micro_tasks');
+                    $deadline = $this->input('deadline');
+                    
+                    if ($value && $deadline) {
+                        $fail('Você não pode habilitar Ofensiva e Data Final ao mesmo tempo.');
+                    }
+
                     if (!$value && (empty($microTasks) || count($microTasks) === 0)) {
                         $fail('A meta precisa ter pelo menos uma sub-tarefa OU o sistema de ofensivas ativado.');
                     }
                 }
             ],
+            'deadline' => 'nullable|date|after_or_equal:today',
             'micro_tasks' => [
                 'nullable',
                 'array',

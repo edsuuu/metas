@@ -7,7 +7,9 @@ use Inertia\Inertia;
 use Inertia\Response;
 use App\Services\ExperienceService;
 use App\Services\StreakService;
+use App\Services\SocialService;
 use App\Models\Goal;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -18,15 +20,18 @@ class DashboardController extends Controller
      */
     protected $experienceService;
     protected $streakService;
+    protected $socialService;
 
-    public function __construct(ExperienceService $experienceService, StreakService $streakService)
+    public function __construct(ExperienceService $experienceService, StreakService $streakService, SocialService $socialService)
     {
         $this->experienceService = $experienceService;
         $this->streakService = $streakService;
+        $this->socialService = $socialService;
     }
 
     public function index(): Response
     {
+        /** @var User $user */
         $user = Auth::user();
         $currentXp = $user->current_xp;
         $level = $this->experienceService->calculateLevel($currentXp);
@@ -43,10 +48,9 @@ class DashboardController extends Controller
             ->where('status', 'active')
             ->latest()
             ->get()
-            ->map(function ($goal) {
-                return array_merge($goal->toArray(), [
-                    'can_complete_streak' => $goal->is_streak_enabled && (!$goal->last_completed_at || $goal->last_completed_at->format('Y-m-d') !== now()->format('Y-m-d'))
-                ]);
+            ->map(function (Goal $goal) {
+                $goal->can_complete_streak = $goal->is_streak_enabled && (!$goal->last_completed_at || !$goal->last_completed_at->isToday());
+                return $goal;
             });
 
         return Inertia::render('Dashboard', [
@@ -59,7 +63,8 @@ class DashboardController extends Controller
                 'progress_percentage' => $progressPercentage,
                 'current_level_xp' => $levelXp,
                 'xp_needed_for_level' => $levelTarget
-            ]
+            ],
+            'ranking' => $this->socialService->getFriendRanking()
         ]);
     }
 }

@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
+use App\Http\Requests\Admin\StoreTicketReplyRequest;
+use Illuminate\Support\Facades\DB;
 
 class TicketController extends Controller
 {
@@ -93,45 +95,55 @@ class TicketController extends Controller
         ]);
     }
 
-    public function reply(Request $request, SupportTicket $ticket)
+    public function reply(StoreTicketReplyRequest $request, SupportTicket $ticket)
     {
-        $request->validate([
-            'message' => 'required|string',
-        ]);
-
-        if ($ticket->status === 'resolved' || $ticket->status === 'closed') {
-            return Redirect::back()->with('error', 'Este chamado está finalizado. Reabra-o para responder.');
-        }
-
-        $reply = SupportTicketReply::create([
-            'support_ticket_id' => $ticket->id,
-            'user_id' => auth()->id(),
-            'message' => $request->message,
-            'is_admin' => true,
-        ]);
-
-        $ticket->update(['status' => 'in_progress']);
-
-        // Send email notification to user
         try {
-            Mail::send('emails.support.ticket-replied', [
-                'ticket' => $ticket,
-                'reply' => $reply
-            ], function ($m) use ($ticket) {
-                $m->to($ticket->email)->subject('Everest - Seu chamado foi respondido! ' . $ticket->protocol);
-            });
-            
+            if ($ticket->status === 'resolved' || $ticket->status === 'closed') {
+                return Redirect::back()->with('error', 'Este chamado está finalizado. Reabra-o para responder.');
+            }
+
+            DB::beginTransaction();
+
+            $reply = SupportTicketReply::query()->create([
+                'support_ticket_id' => $ticket->id,
+                'user_id' => auth()->id(),
+                'message' => $request->input('message'),
+                'is_admin' => true,
+            ]);
+
+            $ticket->update(['status' => 'in_progress']);
+
+            // Send email notification to user
+            try {
+                Mail::send('emails.support.ticket-replied', [
+                    'ticket' => $ticket,
+                    'reply' => $reply
+                ], function ($m) use ($ticket) {
+                    $m->to($ticket->email)->subject('Everest - Seu chamado foi respondido! ' . $ticket->protocol);
+                });
+            } catch (\Exception $mailException) {
+                Log::error('Erro ao enviar e-mail de resposta de chamado: ' . $mailException->getMessage());
+                // Non-blocking error for email
+            }
+
+            DB::commit();
             return Redirect::back()->with('success', 'Resposta enviada e usuário notificado por e-mail!');
         } catch (\Exception $e) {
-            Log::error('Erro ao enviar e-mail de resposta de chamado: ' . $e->getMessage());
-            return Redirect::back()->with('warning', 'Resposta enviada, mas houve um erro ao enviar a notificação por e-mail.');
+            DB::rollBack();
+            Log::error('Erro ao responder chamado (Admin): ' . $e->getMessage());
+            return Redirect::back()->withErrors(['message' => 'Erro ao processar resposta.']);
         }
     }
 
     public function close(SupportTicket $ticket)
     {
-        $ticket->update(['status' => 'resolved']); // or closed
-
-        return Redirect::back()->with('success', 'Chamado finalizado!');
+        try {
+            // No strict need for transaction for single update, but for consistency:
+            $ticket->update(['status' => 'resolved']); // or closed
+            return Redirect::back()->with('success', 'Chamado finalizado!');
+        } catch (\Exception $e) {
+            Log::error('Erro ao fechar chamado: ' . $e->getMessage());
+            return Redirect::back()->withErrors(['message' => 'Erro ao finalizar chamado.']);
+        }
     }
 }

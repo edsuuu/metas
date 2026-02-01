@@ -12,6 +12,7 @@ export default function AdminLayout({ children }: PropsWithChildren) {
     const navItems = [
         { name: 'Dashboard', icon: 'dashboard', route: 'admin.dashboard', active: 'admin.dashboard' },
         { name: 'Usuários', icon: 'group', route: 'admin.users.index', active: 'admin.users.index' },
+        { name: 'Denúncias', icon: 'report', route: 'admin.reports.index', active: 'admin.reports.index' },
         { name: 'Chamados', icon: 'support_agent', route: 'admin.tickets.index', active: 'admin.tickets.index' },
     ];
 

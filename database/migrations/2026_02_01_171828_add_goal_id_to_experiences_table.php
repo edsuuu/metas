@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('support_tickets', function (Blueprint $table) {
-            $table->string('protocol')->unique()->after('id')->nullable();
+        Schema::table('experiences', function (Blueprint $table) {
+            $table->foreignId('goal_id')->nullable()->constrained()->nullOnDelete();
         });
     }
 
@@ -21,8 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('support_tickets', function (Blueprint $table) {
-            $table->dropColumn('protocol');
+        Schema::table('experiences', function (Blueprint $table) {
+            $table->dropForeign(['goal_id']);
+            $table->dropColumn('goal_id');
         });
     }
 };

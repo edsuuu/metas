@@ -13,6 +13,7 @@ use Inertia\Response;
 
 use App\Http\Requests\ProfileDeleteRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -33,6 +34,7 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         try {
+            DB::beginTransaction();
             $user = $request->user();
             $user->fill($request->validated());
 
@@ -41,9 +43,11 @@ class ProfileController extends Controller
             }
 
             $user->save();
+            DB::commit();
 
             return Redirect::route('profile.edit');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Erro ao atualizar perfil: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
                 'request' => $request->all(),
@@ -60,6 +64,7 @@ class ProfileController extends Controller
     public function destroy(ProfileDeleteRequest $request): RedirectResponse
     {
         try {
+            DB::beginTransaction();
             $user = $request->user();
 
             Auth::logout();
@@ -69,8 +74,10 @@ class ProfileController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
+            DB::commit();
             return Redirect::to('/');
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Erro ao excluir conta: ' . $e->getMessage(), [
                 'user_id' => Auth::id(),
                 'exception' => $e

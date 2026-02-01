@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
                 ]) : null,
             ],
             'streak' => fn () => $request->user() ? app(abstract: \App\Services\StreakService::class)->getGlobalStreak($request->user()) : 0,
+            'pendingRequestsCount' => fn () => $request->user() ? \App\Models\Friendship::where('friend_id', $request->user()->id)->where('status', 'pending')->count() : 0,
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),

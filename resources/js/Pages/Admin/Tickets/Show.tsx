@@ -1,6 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
-import { FormEvent, useEffect, useRef } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import Modal from '@/Components/Modal';
 
 declare function route(name?: string, params?: any, absolute?: boolean): any;
 
@@ -38,6 +39,8 @@ export default function TicketShow({ ticket, messages }: Props) {
     const { data, setData, post, processing, reset, errors } = useForm({
         message: '',
     });
+
+    const [showCloseModal, setShowCloseModal] = useState(false);
 
     const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
         messagesEndRef.current?.scrollIntoView({ behavior });
@@ -77,9 +80,9 @@ export default function TicketShow({ ticket, messages }: Props) {
     };
 
     const closeTicket = () => {
-        if (confirm('Deseja realmente finalizar este chamado?')) {
-            post(route('admin.tickets.close', ticket.protocol));
-        }
+        post(route('admin.tickets.close', ticket.protocol), {
+            onSuccess: () => setShowCloseModal(false),
+        });
     };
 
     return (
@@ -113,7 +116,7 @@ export default function TicketShow({ ticket, messages }: Props) {
                         <div>
                             {ticket.status !== 'resolved' && (
                                 <button 
-                                    onClick={closeTicket}
+                                    onClick={() => setShowCloseModal(true)}
                                     className="w-full md:w-auto px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold rounded-full hover:bg-green-500 hover:text-white transition-all flex items-center justify-center gap-2 shadow-sm"
                                 >
                                     <span className="material-symbols-outlined text-sm">check_circle</span>
@@ -157,9 +160,6 @@ export default function TicketShow({ ticket, messages }: Props) {
                                             <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{msg.sender_name}</span>
                                         </>
                                     )}
-                                    {msg.is_admin && (
-                                        <span className="text-xs font-bold text-primary">Suporte / Everest</span>
-                                    )}
                                     <span className="text-[10px] text-gray-400">{msg.created_at_time}</span>
                                 </div>
                                 <div className={`max-w-[85%] p-5 rounded-3xl shadow-md break-words ${
@@ -201,6 +201,30 @@ export default function TicketShow({ ticket, messages }: Props) {
                     </div>
                 )}
             </div>
+            {/* Close Ticket Modal */}
+            <Modal show={showCloseModal} onClose={() => setShowCloseModal(false)}>
+                <div className="p-6">
+                    <h2 className="text-xl font-bold dark:text-white mb-4">Finalizar Chamado</h2>
+                    <p className="text-gray-500 dark:text-gray-300 mb-6">
+                        Tem certeza que deseja finalizar este chamado? O usuário será notificado.
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <button
+                            onClick={() => setShowCloseModal(false)}
+                            className="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onClick={closeTicket}
+                            className="px-4 py-2 text-sm font-bold text-white bg-green-500 hover:bg-green-600 rounded-lg transition-colors"
+                            disabled={processing}
+                        >
+                            Confirmar Finalização
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </AdminLayout>
     );
 }

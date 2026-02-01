@@ -17,10 +17,14 @@ class Goal extends Model implements Auditable
         'category',
         'is_streak_enabled',
         'status',
+        'deadline',
+        'completed_at',
     ];
 
     protected $casts = [
         'is_streak_enabled' => 'boolean',
+        'deadline' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
     protected $appends = ['current_streak', 'last_completed_at'];

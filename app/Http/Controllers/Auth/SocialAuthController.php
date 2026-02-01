@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\DB;
 
 class SocialAuthController extends Controller
 {
@@ -36,13 +37,6 @@ class SocialAuthController extends Controller
             if (Auth::check()) {
                 $user = Auth::user();
                 
-                Log::channel('auth')->info('Google Sudo Mode Attempt', [
-                    'user_id' => $user->id,
-                    'user_email' => $user->email,
-                    // 'google_email' => $googleUser->getEmail(),
-                    // 'google_id' => $googleUser->getId()
-                ]);
-
                 if ($user->email === $googleUser->getEmail() || ($user->google_id && $user->google_id === $googleUser->getId())) {
                     // Update google_id if missing
                     if (empty($user->google_id)) {
@@ -94,7 +88,6 @@ class SocialAuthController extends Controller
         } catch (\Exception $e) {
             Log::channel('auth')->error('Google Auth Error: ' . $e->getMessage(), [
                 'exception' => $e,
-                // 'trace' => $e->getTraceAsString()
             ]);
             
             return redirect()->route('login')->withErrors(['error' => 'Falha na autenticação com o Google. Tente novamente.']);

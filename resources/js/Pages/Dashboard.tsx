@@ -22,6 +22,13 @@ interface Goal {
     can_complete_streak?: boolean;
 }
 
+interface UserRanking {
+    id: number;
+    name: string;
+    avatar_url: string | null;
+    current_xp: number;
+}
+
 interface DashboardProps extends PageProps {
     activeGoals: Goal[];
     todayCompletions: number;
@@ -33,9 +40,10 @@ interface DashboardProps extends PageProps {
         current_level_xp: number;
         xp_needed_for_level: number;
     };
+    ranking: UserRanking[];
 }
 
-export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: DashboardProps) {
+export default function Dashboard({ auth, activeGoals, todayCompletions, xp, ranking }: DashboardProps) {
     const user = auth.user;
     const [search, setSearch] = useState('');
     const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
@@ -164,7 +172,13 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                                                         {goal.is_streak_enabled && (
                                                             <div className="flex items-center justify-end gap-1.5 text-lg font-black text-orange-500 mt-1">
                                                                 <span className="material-symbols-outlined !text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
-                                                                {goal.current_streak} dias
+                                                                {goal.current_streak} {goal.current_streak <= 1 ? 'dia' : 'dias'}
+                                                            </div>
+                                                        )}
+                                                        {goal.deadline && (
+                                                            <div className="flex items-center justify-end gap-1.5 text-xs font-bold text-gray-400 dark:text-gray-500 mt-1 group-hover:text-blue-500 transition-colors">
+                                                                <span className="material-symbols-outlined text-sm">event</span>
+                                                                {new Date(goal.deadline).toLocaleDateString('pt-BR')}
                                                             </div>
                                                         )}
                                                     </div>
@@ -231,6 +245,18 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                                                         )}
                                                     </div>
                                                 )}
+
+                                                {goal.deadline && (
+                                                    <div className="mt-6 pt-4 border-t border-gray-50 dark:border-gray-700">
+                                                        <button 
+                                                            onClick={() => router.post(route('goals.complete', goal.id))}
+                                                            className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">check_circle</span>
+                                                            Concluir Meta +500 XP
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}
@@ -265,15 +291,34 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                                 <span className="material-symbols-outlined icon-gradient-trophy text-2xl text-yellow-500">leaderboard</span>
                             </div>
                             <div className="p-4 space-y-3">
-                                <div className="flex items-center gap-3 p-2 rounded-xl bg-primary/10 border border-primary/20">
-                                    <div className="size-8 rounded-full overflow-hidden border border-primary">
-                                        <img alt="User" className="w-full h-full object-cover" src={user.avatar_url || "https://ui-avatars.com/api/?name=" + user.name} />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs font-bold dark:text-white truncate">Você</p>
-                                        <p className="text-[10px] text-primary font-bold">{currentXp} XP</p>
-                                    </div>
-                                </div>
+                                {ranking?.map((rankUser: any, index: number) => (
+                                    <Link 
+                                        key={rankUser.id} 
+                                        href={route('social.profile', rankUser.nickname || rankUser.id)}
+                                        className={`flex items-center gap-3 p-2 rounded-xl transition-all ${rankUser.id === auth.user.id ? 'bg-primary/10 border border-primary/20' : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'} group`}
+                                    >
+                                        <div className="flex items-center justify-center size-5 text-[10px] font-black text-gray-400">
+                                            {index + 1}
+                                        </div>
+                                        <div className="size-8 rounded-full overflow-hidden border border-gray-100 dark:border-gray-700 group-hover:scale-110 transition-transform">
+                                            <img alt={rankUser.name} className="w-full h-full object-cover" src={rankUser.avatar_url || `https://ui-avatars.com/api/?name=${rankUser.name}`} />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-xs font-bold truncate group-hover:underline ${rankUser.id === auth.user.id ? 'dark:text-white' : 'text-gray-700 dark:text-gray-300'}`}>
+                                                {rankUser.id === auth.user.id ? 'Você' : rankUser.name}
+                                            </p>
+                                            <p className="text-[10px] text-gray-400 font-bold">{rankUser.experiences_sum_amount || 0} XP</p>
+                                        </div>
+                                        {index < 3 && (
+                                            <span className="material-symbols-outlined text-sm text-yellow-500">
+                                                {index === 0 ? 'military_tech' : 'workspace_premium'}
+                                            </span>
+                                        )}
+                                    </Link>
+                                ))}
+                                {ranking?.length === 0 && (
+                                    <p className="text-center py-4 text-xs text-gray-400 font-medium">Você ainda não tem amigos no ranking.</p>
+                                )}
                             </div>
                         </div>
 
