@@ -76,13 +76,13 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                 <section className="mb-6">
                     <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4 border border-[#dbe6e1] dark:border-gray-700">
                         <div className="flex items-center gap-3 min-w-fit">
-                            <div className="size-10 rounded-xl bg-gray-900 dark:bg-primary flex items-center justify-center text-white dark:text-gray-900 shadow-sm">
-                                <span className="text-lg font-black">Lvl {level}</span>
+                            <div className="size-12 rounded-xl bg-gray-900 dark:bg-primary flex items-center justify-center text-white dark:text-gray-900 shadow-sm">
+                                <span className="text-xs font-black">Lvl {level}</span>
                             </div>
-                            <div className="hidden sm:block">
+                            {/* <div className="hidden sm:block">
                                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Status</p>
                                 <p className="text-xs font-bold dark:text-white">Iniciante</p>
-                            </div>
+                            </div> */}
                         </div>
                         <div className="flex-1 w-full space-y-1.5">
                             <div className="flex justify-between items-end">
@@ -133,9 +133,9 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                                 </div>
                             </div>
 
-                            <div className="columns-1 md:columns-2 gap-4">
-                                {filteredGoals.length > 0 ? (
-                                    filteredGoals.map((goal) => {
+                            {filteredGoals.length > 0 ? (
+                                <div className="columns-1 md:columns-2 gap-4">
+                                    {filteredGoals.map((goal) => {
                                         const styles = getCategoryStyles(goal.category);
                                         const totalTasks = goal.micro_tasks?.length || 0;
                                         const completedTasks = goal.micro_tasks?.filter(t => !!t.is_completed).length || 0;
@@ -233,28 +233,28 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                                                 )}
                                             </div>
                                         );
-                                    })
-                                ) : (
-                                    <div className="bg-white dark:bg-gray-800 rounded-3xl p-10 border border-dashed border-[#dbe6e1] dark:border-gray-700 text-center space-y-4">
-                                        <div className="size-16 rounded-full bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center mx-auto text-gray-300">
-                                            <span className="material-symbols-outlined !text-3xl">add_task</span>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold dark:text-white">
-                                                {search ? 'Nenhuma meta encontrada' : 'Nenhuma meta ativa'}
-                                            </h4>
-                                            <p className="text-sm text-gray-500">
-                                                {search ? `Não encontramos metas para "${search}"` : 'Que tal começar algo novo hoje?'}
-                                            </p>
-                                        </div>
-                                        {!search && (
-                                            <Link href={route('goals.create')} className="inline-flex h-10 px-6 bg-primary text-[#111815] rounded-full text-xs font-bold items-center hover:scale-105 transition-transform">
-                                                Criar Minha Primeira Meta
-                                            </Link>
-                                        )}
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="bg-white dark:bg-gray-800 rounded-3xl p-10 border border-dashed border-[#dbe6e1] dark:border-gray-700 text-center space-y-4">
+                                    <div className="size-16 rounded-full bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center mx-auto text-gray-300">
+                                        <span className="material-symbols-outlined !text-3xl">add_task</span>
                                     </div>
-                                )}
-                            </div>
+                                    <div>
+                                        <h4 className="font-bold dark:text-white">
+                                            {search ? 'Nenhuma meta encontrada' : 'Nenhuma meta ativa'}
+                                        </h4>
+                                        <p className="text-sm text-gray-500">
+                                            {search ? `Não encontramos metas para "${search}"` : 'Que tal começar algo novo hoje?'}
+                                        </p>
+                                    </div>
+                                    {!search && (
+                                        <Link href={route('goals.create')} className="inline-flex h-10 px-6 bg-primary text-[#111815] rounded-full text-xs font-bold items-center hover:scale-105 transition-transform">
+                                            Criar Minha Primeira Meta
+                                        </Link>
+                                    )}
+                                </div>
+                            )}
                         </section>
                     </div>
 
@@ -277,7 +277,7 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                             </div>
                         </div>
 
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 shadow-sm overflow-hidden">
+                        {/* <div className="bg-white dark:bg-gray-800 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 shadow-sm overflow-hidden">
                             <div className="p-5 border-b border-[#dbe6e1] dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex items-center justify-between">
                                 <h2 className="font-bold dark:text-white">Conquistas</h2>
                                 <span className="material-symbols-outlined icon-gradient-trophy text-2xl text-yellow-500">workspace_premium</span>
@@ -299,8 +299,8 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp }: D
                                     <span className="material-symbols-outlined text-gray-400 mb-1 text-2xl">lock</span>
                                     <span className="text-[10px] font-bold text-gray-400 text-center">Bloqueado</span>
                                 </div>
-                            </div>
-                        </div>
+                            </div> */}
+                        {/* </div> */}
                     </div>
                 </div>
             </main>

@@ -56,7 +56,7 @@
                             <div style="background-color: #f6f8f7; border-radius: 16px; padding: 24px; margin-bottom: 40px; border-left: 4px solid #13ec92;">
                                 <h3 style="font-size: 12px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 12px 0;">Resumo da Atualização</h3>
                                 <p style="color: #374151; font-style: italic; margin: 0;">
-                                    "{{ Str::limit($reply->message ?? 'Nova resposta disponível.', 100) }}"
+                                    "{{ Str::limit($reply->message ?? 'Nova resposta disponível.', 50) }}"
                                 </p>
                             </div>
 

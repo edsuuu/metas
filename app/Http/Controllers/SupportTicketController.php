@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SupportTicket;
+use App\Models\SupportTicketReply;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
@@ -33,7 +34,7 @@ class SupportTicketController extends Controller
                 'status' => 'pending',
             ]);
 
-            return Redirect::back()->with('success', 'Chamado criado com sucesso! Protocolo: #' . $ticket->id);
+            return Redirect::back()->with('success', 'Chamado criado com sucesso! Protocolo: ' . $ticket->protocol);
         } catch (\Exception $e) {
             Log::error('Erro ao criar chamado de suporte: ' . $e->getMessage(), [
                 'request' => $request->all(),
@@ -54,12 +55,15 @@ class SupportTicketController extends Controller
         if ($isVerified && $email) {
             $tickets = SupportTicket::query()
                 ->where('email', $email)
+                ->when($request->search, function ($query, $search) {
+                    $query->where('protocol', 'like', "%{$search}%");
+                })
                 ->orderBy('created_at', 'desc')
                 ->get()
                 ->map(function ($ticket) {
                     return [
                         'id' => $ticket->id,
-                        'protocol' => '#EV-' . $ticket->id,
+                        'protocol' => $ticket->protocol,
                         'subject' => $ticket->subject,
                         'created_at_formatted' => $ticket->created_at->format('d M Y'),
                         'status' => $ticket->status,
@@ -71,7 +75,7 @@ class SupportTicketController extends Controller
                             'closed' => 'bg-gray-100 text-gray-700',
                             default => 'bg-gray-100 text-gray-700',
                         },
-                        'view_url' => route('support.ticket.show', $ticket->id),
+                        'view_url' => route('support.ticket.show', ['ticket' => $ticket]),
                     ];
                 });
         }
@@ -80,6 +84,7 @@ class SupportTicketController extends Controller
             'tickets' => $tickets,
             'is_verified' => $isVerified,
             'email' => $email ?? '',
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -133,33 +138,42 @@ class SupportTicketController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(SupportTicket $ticket)
     {
         if (!session('support_verified')) {
              return Redirect::route('support.my-tickets');
         }
 
-        $ticket = SupportTicket::query()->findOrFail($id);
+        $ticket->load(['replies.user']);
         
         // Security check: ensure ticket belongs to verified email
         if ($ticket->email !== session('support_email')) {
             abort(403);
         }
         
-        $messages = [
-            [
-                'id' => 1,
-                'message' => $ticket->message,
-                'is_admin' => false,
-                'sender_name' => 'Você',
-                'created_at_time' => $ticket->created_at->format('H:i'),
-            ]
-        ];
+        $messages = $ticket->replies->map(function ($reply) {
+            return [
+                'id' => $reply->id,
+                'message' => $reply->message,
+                'is_admin' => $reply->is_admin,
+                'sender_name' => $reply->is_admin ? 'Suporte' : 'Você',
+                'created_at_time' => $reply->created_at->format('H:i'),
+            ];
+        })->toArray();
+
+        // Add initial message as first message
+        array_unshift($messages, [
+            'id' => 0,
+            'message' => $ticket->message,
+            'is_admin' => false,
+            'sender_name' => 'Você',
+            'created_at_time' => $ticket->created_at->format('H:i'),
+        ]);
 
         return Inertia::render('Support/TicketDetails', [
             'ticket' => [
                 'id' => $ticket->id,
-                'protocol' => '#EV-' . $ticket->id,
+                'protocol' => $ticket->protocol,
                 'subject' => $ticket->subject,
                 'created_at_formatted' => $ticket->created_at->format('d M Y'),
                 'status' => $ticket->status,
@@ -176,14 +190,39 @@ class SupportTicketController extends Controller
         ]);
     }
 
-    public function reply(Request $request, $id)
+    public function reply(Request $request, SupportTicket $ticket)
     {
         try {
-            // Implementation for user reply could go here
-            return Redirect::back();
+            if (!session('support_verified')) {
+                abort(401);
+            }
+
+            $request->validate([
+                'message' => 'required|string',
+            ]);
+
+            if ($ticket->status === 'resolved' || $ticket->status === 'closed') {
+                return Redirect::back()->with('error', 'Este chamado já foi finalizado e não aceita mais respostas.');
+            }
+
+            // Security check
+            if ($ticket->email !== session('support_email')) {
+                abort(403);
+            }
+
+            SupportTicketReply::create([
+                'support_ticket_id' => $ticket->id,
+                'user_id' => auth()->id(),
+                'message' => $request->message,
+                'is_admin' => false,
+            ]);
+
+            $ticket->update(['status' => 'pending']); // Back to pending when user replies
+
+            return Redirect::back()->with('success', 'Sua resposta foi enviada!');
         } catch (\Exception $e) {
             Log::error('Erro ao responder chamado: ' . $e->getMessage());
-            return Redirect::back();
+            return Redirect::back()->withErrors(['message' => 'Erro ao enviar resposta.']);
         }
     }
 }

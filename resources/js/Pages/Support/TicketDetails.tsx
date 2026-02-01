@@ -1,5 +1,5 @@
-import React, { FormEventHandler } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import React, { FormEventHandler, useEffect, useRef } from 'react';
+import { Head, Link, useForm, router, usePage } from '@inertiajs/react';
 import LegalNavbar from '@/Components/LegalNavbar';
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
@@ -26,13 +26,47 @@ interface TicketDetailsProps {
 }
 
 export default function TicketDetails({ ticket, messages }: TicketDetailsProps) {
-    const { data, setData, post, processing, reset } = useForm({
+    const { flash } = usePage().props as any;
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const prevMessagesLength = useRef(messages.length);
+
+    const { data, setData, post, processing, reset, errors } = useForm({
         message: '',
     });
 
+    const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+        messagesEndRef.current?.scrollIntoView({ behavior });
+    };
+
+    // Initial scroll
+    useEffect(() => {
+        scrollToBottom('auto');
+    }, []);
+
+    // Scroll only when new messages arrive
+    useEffect(() => {
+        if (messages.length > prevMessagesLength.current) {
+            scrollToBottom('smooth');
+        }
+        prevMessagesLength.current = messages.length;
+    }, [messages]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({ 
+                only: ['messages', 'ticket'],
+                preserveScroll: true,
+                preserveState: true
+            } as any);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('support.ticket.reply', ticket.id), {
+        post(route('support.ticket.reply', ticket.protocol), {
             preserveScroll: true,
             onSuccess: () => reset(),
         });
@@ -69,55 +103,88 @@ export default function TicketDetails({ ticket, messages }: TicketDetailsProps) 
                         </div>
                     </div>
                 </div>
-
-                <div className="space-y-6 mb-10">
-                    {messages.map((msg) => (
-                        <div key={msg.id} className={`flex flex-col ${msg.is_admin ? 'items-start' : 'items-end'}`}>
-                            <div className={`flex items-center gap-2 mb-2 ${msg.is_admin ? 'ml-4' : 'mr-4'}`}>
-                                {msg.is_admin ? (
-                                    <>
-                                        <div className="size-6 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold">E</div>
-                                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{msg.sender_name}</span>
-                                    </>
-                                ) : (
-                                    <span className="text-xs font-bold text-gray-500">Você</span>
-                                )}
-                                <span className="text-[10px] text-gray-400">{msg.created_at_time}</span>
-                            </div>
-                            <div className={`max-w-[85%] p-5 rounded-3xl shadow-md ${
-                                msg.is_admin 
-                                    ? 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-[#dbe6e1] dark:border-gray-700 rounded-bl-sm' 
-                                    : 'bg-primary text-[#111815] shadow-primary/10 rounded-br-sm'
-                            }`}>
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.message}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="bg-white dark:bg-gray-800 rounded-3xl border-2 border-primary/20 dark:border-gray-700 p-4 md:p-6 shadow-xl shadow-primary/5">
-                    <div className="flex items-center gap-2 mb-4">
-                        <span className="material-symbols-outlined text-primary">reply</span>
-                        <h3 className="font-bold text-[#111815] dark:text-white">Enviar uma réplica</h3>
+                
+                {flash?.success && (
+                    <div className="mb-6 p-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-2xl font-bold text-sm animate-fade-in flex items-center gap-2">
+                        <span className="material-symbols-outlined text-lg">check_circle</span>
+                        {flash.success}
                     </div>
-                    <form onSubmit={submit}>
-                        <textarea 
-                            className="w-full rounded-2xl border-[#dbe6e1] dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-primary focus:border-primary text-sm min-h-[120px] mb-4 p-4 placeholder-gray-400 resize-none" 
-                            placeholder="Digite sua mensagem aqui..."
-                            value={data.message}
-                            onChange={(e) => setData('message', e.target.value)}
-                        ></textarea>
-                        <div className="flex flex-col md:flex-row justify-end items-center gap-4">
-                             <button 
-                                className="w-full md:w-auto px-8 py-3 bg-primary text-[#111815] font-bold rounded-full hover:scale-[1.02] active:scale-95 transition-transform shadow-lg shadow-primary/20 disabled:opacity-50" 
-                                type="submit"
-                                disabled={processing}
-                             >
-                                {processing ? 'Enviando...' : 'Enviar Resposta'}
-                            </button>
-                        </div>
-                    </form>
+                )}
+                {flash?.error && (
+                    <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-2xl font-bold text-sm animate-fade-in flex items-center gap-2">
+                        <span className="material-symbols-outlined text-lg">error</span>
+                        {flash.error}
+                    </div>
+                )}
+                {flash?.warning && (
+                    <div className="mb-6 p-4 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-2xl font-bold text-sm animate-fade-in flex items-center gap-2">
+                        <span className="material-symbols-outlined text-lg">warning</span>
+                        {flash.warning}
+                    </div>
+                )}
+
+                <div 
+                    ref={scrollContainerRef}
+                    className="flex-1 overflow-y-auto pr-2 max-h-[600px] mb-10 custom-scrollbar scroll-smooth"
+                >
+                    <div className="space-y-6 pb-4">
+                        {messages.map((msg) => (
+                            <div key={msg.id} className={`flex flex-col ${msg.is_admin ? 'items-start' : 'items-end'}`}>
+                                <div className={`flex items-center gap-2 mb-2 ${msg.is_admin ? 'ml-4' : 'mr-4'}`}>
+                                    {msg.is_admin ? (
+                                        <>
+                                            <div className="size-6 bg-primary rounded-full flex items-center justify-center text-[10px] font-bold">E</div>
+                                            <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{msg.sender_name}</span>
+                                        </>
+                                    ) : (
+                                        <span className="text-xs font-bold text-gray-500">Você</span>
+                                    )}
+                                    <span className="text-[10px] text-gray-400">{msg.created_at_time}</span>
+                                </div>
+                                <div className={`max-w-[85%] p-5 rounded-3xl shadow-md break-words ${
+                                    msg.is_admin 
+                                        ? 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-[#dbe6e1] dark:border-gray-700 rounded-bl-sm' 
+                                        : 'bg-primary text-[#111815] shadow-primary/10 rounded-br-sm'
+                                }`}>
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap break-all">{msg.message}</p>
+                                </div>
+                            </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
                 </div>
+
+                {ticket.status !== 'resolved' && ticket.status !== 'closed' ? (
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl border-2 border-primary/20 dark:border-gray-700 p-4 md:p-6 shadow-xl shadow-primary/5">
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className="material-symbols-outlined text-primary">reply</span>
+                            <h3 className="font-bold text-[#111815] dark:text-white">Enviar uma réplica</h3>
+                        </div>
+                        <form onSubmit={submit}>
+                            <textarea 
+                                className="w-full rounded-2xl border-[#dbe6e1] dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 focus:ring-primary focus:border-primary text-sm min-h-[120px] mb-4 p-4 placeholder-gray-400 resize-none dark:text-white" 
+                                placeholder="Digite sua mensagem aqui..."
+                                value={data.message}
+                                onChange={(e) => setData('message', e.target.value)}
+                            />
+                            {errors.message && <p className="text-red-500 text-xs font-bold mb-4">{errors.message}</p>}
+                            <div className="flex justify-end">
+                                <button 
+                                    className="w-full md:w-auto px-8 py-3 bg-primary text-[#111815] font-bold rounded-full hover:scale-[1.02] active:scale-95 transition-transform shadow-lg shadow-primary/20 disabled:opacity-50"
+                                    disabled={processing}
+                                >
+                                    {processing ? 'Enviando...' : 'Enviar Réplica'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                ) : (
+                    <div className="bg-gray-50 dark:bg-gray-900/50 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 p-6 shadow-sm text-center">
+                        <span className="material-symbols-outlined text-gray-400 text-4xl mb-3">lock</span>
+                        <h3 className="font-bold text-gray-700 dark:text-white mb-2">Este chamado está finalizado</h3>
+                        <p className="text-sm text-gray-500">Não é mais possível enviar mensagens para este chamado poist ele já foi resolvido.</p>
+                    </div>
+                )}
             </main>
 
             <footer className="w-full py-12 px-4 bg-background-light dark:bg-background-dark border-t border-[#dbe6e1] dark:border-gray-800">

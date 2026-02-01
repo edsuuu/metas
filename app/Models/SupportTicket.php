@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class SupportTicket extends Model
+use Illuminate\Support\Str;
+
+class SupportTicket extends Model implements Auditable
 {
-    use HasFactory;
+    use HasFactory, AuditableTrait;
 
     protected $fillable = [
         'name',
@@ -15,5 +19,27 @@ class SupportTicket extends Model
         'subject',
         'message',
         'status',
+        'protocol',
     ];
+
+
+    protected static function booted(): void
+    {
+        static::creating(function ($ticket) {
+            if (!$ticket->protocol) {
+                $nanoId = Str::lower(Str::random(8));
+                $ticket->protocol = 'EV-' . $nanoId . '-' . time();
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'protocol';
+    }
+
+    public function replies()
+    {
+        return $this->hasMany(SupportTicketReply::class, 'support_ticket_id');
+    }
 }

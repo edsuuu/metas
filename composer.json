@@ -16,6 +16,7 @@
         "lucascudo/laravel-pt-br-localization": "^3.0",
         "opcodesio/log-viewer": "^3.21",
         "owen-it/laravel-auditing": "^14.0",
+        "spatie/laravel-permission": "^6.24",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {

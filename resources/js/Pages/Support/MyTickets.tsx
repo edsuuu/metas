@@ -1,5 +1,5 @@
 import React, { FormEventHandler } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import LegalNavbar from '@/Components/LegalNavbar';
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
@@ -19,9 +19,12 @@ interface MyTicketsProps {
     tickets?: Ticket[];
     is_verified?: boolean;
     email?: string;
+    filters?: {
+        search?: string;
+    };
 }
 
-export default function MyTickets({ tickets = [], is_verified = false, email = '' }: MyTicketsProps) {
+export default function MyTickets({ tickets = [], is_verified = false, email = '', filters }: MyTicketsProps) {
     const { data, setData, post, processing, errors } = useForm({
         email: email,
     });
@@ -31,21 +34,33 @@ export default function MyTickets({ tickets = [], is_verified = false, email = '
         post(route('support.access.request'));
     };
 
+    const handleSearch = (search?: string) => {
+        router.get(route('support.my-tickets'), 
+            search ? { search } : {}, 
+            { preserveState: true, preserveScroll: true }
+        );
+    };
+
     return (
         <div className="bg-background-light dark:bg-background-dark text-[#111815] transition-colors duration-300 min-h-screen flex flex-col font-display">
             <Head title="Everest - Meus Chamados" />
             
             <LegalNavbar>
-                 <Link className="px-5 py-2 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-[#111815] text-sm font-bold transition-all" href={route('support')}>Central de Ajuda</Link>
+                 <div className="flex items-center gap-4">
+                     {(usePage().props as any).auth?.user && (
+                         <Link className="text-sm font-bold text-[#111815] dark:text-gray-300 hover:text-primary transition-colors" href={route('dashboard')}>Dashboard</Link>
+                     )}
+                     <Link className="px-5 py-2 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-[#111815] text-sm font-bold transition-all" href={route('support')}>Central de Ajuda</Link>
+                 </div>
             </LegalNavbar>
 
             <main className="flex-1">
-                <section className="pt-20 pb-12 px-4" style={{
+                <section className="pt-20 pb-8 px-4" style={{
                     background: 'radial-gradient(circle at top right, rgba(19, 236, 146, 0.15), transparent), radial-gradient(circle at bottom left, rgba(19, 236, 146, 0.05), transparent)'
                 }}>
                     <div className="max-w-[800px] mx-auto text-center">
                         <h1 className="text-4xl md:text-5xl font-black text-[#111815] dark:text-white mb-4 tracking-tight">Acompanhe seus chamados</h1>
-                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">
+                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
                             {is_verified 
                                 ? `Mostrando chamados associados a ${email}`
                                 : 'Digite seu e-mail para ver o status de suas solicitações'
@@ -58,7 +73,7 @@ export default function MyTickets({ tickets = [], is_verified = false, email = '
                                     <div className="relative flex-1 group">
                                         <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl group-focus-within:text-primary transition-colors">mail</span>
                                         <input 
-                                            className="w-full pl-14 pr-6 h-14 rounded-full bg-white dark:bg-gray-800 border-2 border-[#dbe6e1] dark:border-gray-700 focus:border-primary focus:ring-0 text-base shadow-xl shadow-primary/5 transition-all outline-none" 
+                                            className="w-full pl-14 pr-6 h-14 rounded-full bg-white dark:bg-gray-800 border-2 border-[#dbe6e1] dark:border-gray-700 focus:border-primary focus:ring-0 text-base shadow-xl shadow-primary/5 transition-all outline-none dark:text-white" 
                                             placeholder="seu@email.com" 
                                             required 
                                             type="email"
@@ -81,7 +96,48 @@ export default function MyTickets({ tickets = [], is_verified = false, email = '
                 </section>
 
                 {is_verified && (
-                    <section className="max-w-[1000px] mx-auto px-4 py-12 mb-20">
+                    <section className="max-w-[1000px] mx-auto px-4 py-8">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                            <div className="flex flex-1 max-w-md gap-3">
+                                <div className="relative flex-1 group">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl group-focus-within:text-primary transition-colors">search</span>
+                                    <input 
+                                        id="protocol-search"
+                                        className="w-full pl-12 pr-6 h-12 rounded-2xl bg-white dark:bg-gray-800 border-2 border-[#dbe6e1] dark:border-gray-700 focus:border-primary focus:ring-0 text-sm shadow-sm transition-all outline-none dark:text-white" 
+                                        placeholder="Buscar por protocolo..." 
+                                        type="text"
+                                        defaultValue={filters?.search || ''}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleSearch(e.currentTarget.value);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        const search = (document.getElementById('protocol-search') as HTMLInputElement)?.value;
+                                        handleSearch(search);
+                                    }}
+                                    className="px-6 h-12 rounded-2xl bg-primary text-[#111815] font-bold text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                >
+                                    Filtrar
+                                </button>
+                                {filters?.search && (
+                                    <button 
+                                        onClick={() => {
+                                            const input = document.getElementById('protocol-search') as HTMLInputElement;
+                                            if (input) input.value = '';
+                                            handleSearch();
+                                        }}
+                                        className="px-6 h-12 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-bold text-sm hover:bg-red-500 hover:text-white transition-all whitespace-nowrap"
+                                    >
+                                        Limpar
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
                         {tickets.length > 0 ? (
                             <div className="bg-white dark:bg-gray-800 rounded-3xl border border-[#dbe6e1] dark:border-gray-700 shadow-sm overflow-hidden">
                                 <div className="overflow-x-auto">
@@ -92,11 +148,12 @@ export default function MyTickets({ tickets = [], is_verified = false, email = '
                                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Assunto</th>
                                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Data</th>
                                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                                <th className="px-6 py-4 text-right"></th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[#dbe6e1] dark:divide-gray-700">
                                             {tickets.map((ticket) => (
-                                                <tr key={ticket.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors cursor-pointer" onClick={() => window.location.href = ticket.view_url}>
+                                                <tr key={ticket.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                                                     <td className="px-6 py-5 text-sm font-medium text-gray-900 dark:text-white">{ticket.protocol}</td>
                                                     <td className="px-6 py-5 text-sm text-gray-600 dark:text-gray-300">{ticket.subject}</td>
                                                     <td className="px-6 py-5 text-sm text-gray-500 dark:text-gray-400">{ticket.created_at_formatted}</td>
@@ -104,6 +161,15 @@ export default function MyTickets({ tickets = [], is_verified = false, email = '
                                                         <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${ticket.status_color}`}>
                                                             {ticket.status_label}
                                                         </span>
+                                                    </td>
+                                                    <td className="px-6 py-5 text-right">
+                                                        <Link 
+                                                            href={ticket.view_url}
+                                                            className="inline-flex items-center justify-center size-9 rounded-xl bg-primary text-[#111815] shadow-sm hover:scale-110 transition-all font-bold group"
+                                                            title="Ver detalhes"
+                                                        >
+                                                            <span className="material-symbols-outlined text-sm">visibility</span>
+                                                        </Link>
                                                     </td>
                                                 </tr>
                                             ))}

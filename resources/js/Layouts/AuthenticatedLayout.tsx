@@ -32,7 +32,7 @@ export default function Authenticated({ children }: PropsWithChildren<{ header?:
                         <nav className="hidden md:flex items-center gap-9">
                             <Link href={route('dashboard')} className={`text-sm font-bold border-b-2 transition-colors ${route().current('dashboard') ? 'text-primary border-primary' : 'text-[#111815] dark:text-gray-300 border-transparent hover:text-primary'}`}>Dashboard</Link>
                             <Link href={route('goals.index')} className={`text-sm font-bold border-b-2 transition-colors ${route().current('goals.*') ? 'text-primary border-primary' : 'text-[#111815] dark:text-gray-300 border-transparent hover:text-primary'}`}>Metas</Link>
-                            <Link href={route('achievements')} className={`text-sm font-bold border-b-2 transition-colors ${route().current('achievements') ? 'text-primary border-primary' : 'text-[#111815] dark:text-gray-300 border-transparent hover:text-primary'}`}>Conquistas</Link>
+                            {/* <Link href={route('achievements')} className={`text-sm font-bold border-b-2 transition-colors ${route().current('achievements') ? 'text-primary border-primary' : 'text-[#111815] dark:text-gray-300 border-transparent hover:text-primary'}`}>Conquistas</Link> */}
                         </nav>
                         <div className="flex items-center gap-4">
                             <div className="hidden sm:flex items-center gap-2 bg-orange-50 dark:bg-orange-950/30 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-900/50">
@@ -58,6 +58,12 @@ export default function Authenticated({ children }: PropsWithChildren<{ header?:
                                             <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                     </div>
                                     <Dropdown.Link href={route('profile.edit')}>Perfil</Dropdown.Link>
+                                    {!(user.roles?.includes('Administrador') || user.roles?.includes('Suporte')) && (
+                                        <Dropdown.Link href={route('support.my-tickets')}>Meus Chamados</Dropdown.Link>
+                                    )}
+                                    {(user.roles?.includes('Administrador') || user.roles?.includes('Suporte')) && (
+                                        <Dropdown.Link href={route('admin.dashboard')}>Painel Admin</Dropdown.Link>
+                                    )}
                                     <Dropdown.Link href={route('logout')} method="post" as="button">Sair</Dropdown.Link>
                                 </Dropdown.Content>
                             </Dropdown>

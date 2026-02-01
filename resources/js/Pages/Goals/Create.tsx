@@ -94,9 +94,10 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
             ];
             
             // Clear specific error if adding a non-duplicate
-            if (valErrors.new_task_title) {
+            if (valErrors.new_task_title || valErrors.micro_tasks) {
                 const newErrors = { ...valErrors };
                 delete newErrors.new_task_title;
+                delete newErrors.micro_tasks;
                 setValErrors(newErrors);
             }
 
@@ -216,7 +217,14 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                                                     type="checkbox" 
                                                     className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 dark:border-gray-600 appearance-none cursor-pointer z-10 transition-all duration-200"
                                                     checked={data.is_streak_enabled}
-                                                    onChange={e => setData('is_streak_enabled', e.target.checked)}
+                                                    onChange={e => {
+                                                        setData('is_streak_enabled', e.target.checked);
+                                                        if (e.target.checked && valErrors.micro_tasks) {
+                                                            const newErrors = { ...valErrors };
+                                                            delete newErrors.micro_tasks;
+                                                            setValErrors(newErrors);
+                                                        }
+                                                    }}
                                                 />
                                                 <label htmlFor="enable-streak" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-700 cursor-pointer transition-colors duration-200"></label>
                                             </div>
@@ -300,6 +308,16 @@ export default function CreateGoal({ goal }: CreateGoalProps) {
                                             <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">Metas quebradas em tarefas menores de até 30 minutos são 3x mais propensas a serem concluídas sem procrastinação.</p>
                                         </div>
                                     </div>
+                                </div>
+                            )}
+
+                            {/* Global Validation Errors (Streak or Subtasks) */}
+                            {(valErrors.micro_tasks || errors.is_streak_enabled || errors.micro_tasks) && (
+                                <div className="mt-6 p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+                                    <span className="material-symbols-outlined">error</span>
+                                    <p className="text-sm font-bold">
+                                        {valErrors.micro_tasks || errors.is_streak_enabled || errors.micro_tasks}
+                                    </p>
                                 </div>
                             )}
 

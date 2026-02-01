@@ -33,12 +33,20 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? array_merge($request->user()->toArray(), [
+                    'roles' => $request->user()->getRoleNames(),
+                ]) : null,
             ],
-            'streak' => fn () => $request->user() ? app(\App\Services\StreakService::class)->getGlobalStreak($request->user()) : 0,
+            'streak' => fn () => $request->user() ? app(abstract: \App\Services\StreakService::class)->getGlobalStreak($request->user()) : 0,
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
+            ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+                'warning' => $request->session()->get('warning'),
+                'message' => $request->session()->get('message'),
             ],
         ];
     }

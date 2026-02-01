@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class Goal extends Model
+class Goal extends Model implements Auditable
 {
+    use AuditableTrait;
+
     protected $fillable = [
         'user_id',
         'title',

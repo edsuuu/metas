@@ -5,8 +5,12 @@ use App\Http\Controllers\GoalController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\SupportTicketController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Middleware\AuditAdminAccess;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -71,8 +75,8 @@ Route::prefix('suporte')->name('support.')->group(function () {
 
     Route::prefix('chamado')->name('ticket.')->group(function () {
         Route::post('/', [SupportTicketController::class, 'store'])->name('store');
-        Route::get('/{id}', [SupportTicketController::class, 'show'])->name('show');
-        Route::post('/{id}/responder', [SupportTicketController::class, 'reply'])->name('reply');
+        Route::get('/{ticket}', [SupportTicketController::class, 'show'])->name('show');
+        Route::post('/{ticket}/responder', [SupportTicketController::class, 'reply'])->name('reply');
     });
 });
 
@@ -85,14 +89,30 @@ Route::middleware('auth')->group(function () {
         Route::resource('metas', GoalController::class)->names('goals');
     });
 
-    Route::get('/conquistas', function () {
+/*     Route::get('/conquistas', function () {
         return Inertia::render('Achievements');
-    })->name('achievements');
+    })->name('achievements'); */
 
     Route::prefix('perfil')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::patch('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
+
+    // Admin Routes
+    Route::prefix('admin')->name('admin.')->middleware(['audit.admin', 'role_or_permission:Administrador|Suporte'])->group(function () {
+        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        
+        Route::prefix('usuarios')->name('users.')->group(function () {
+            Route::get('/', [AdminUserController::class, 'index'])->name('index');
+        });
+
+        Route::prefix('tickets')->name('tickets.')->group(function () {
+            Route::get('/', [AdminTicketController::class, 'index'])->name('index');
+            Route::get('/{ticket}', [AdminTicketController::class, 'show'])->name('show');
+            Route::post('/{ticket}/responder', [AdminTicketController::class, 'reply'])->name('reply');
+            Route::post('/{ticket}/fechar', [AdminTicketController::class, 'close'])->name('close');
+        });
     });
 });
 

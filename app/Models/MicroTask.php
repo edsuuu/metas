@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 
-class MicroTask extends Model
+class MicroTask extends Model implements Auditable
 {
+    use AuditableTrait;
     /**
      * The attributes that are mass assignable.
      *
