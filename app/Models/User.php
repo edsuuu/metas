@@ -48,6 +48,16 @@ class User extends Authenticatable implements Auditable
         return $this->hasMany(Goal::class);
     }
 
+    public function notificationPreference()
+    {
+        return $this->hasOne(NotificationPreference::class);
+    }
+
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
     public function avatar()
     {
         return $this->morphOne(File::class, 'fileable')->latest();

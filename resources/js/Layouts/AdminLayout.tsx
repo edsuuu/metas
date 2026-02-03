@@ -35,6 +35,12 @@ export default function AdminLayout({ children }: PropsWithChildren) {
             route: "admin.tickets.index",
             active: "admin.tickets.index",
         },
+        {
+            name: "Notificações",
+            icon: "notifications",
+            route: "admin.notifications.index",
+            active: "admin.notifications.index",
+        },
     ];
 
     const isRouteActive = (pattern: string) => {

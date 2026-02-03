@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Middleware\AuditAdminAccess;
 use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\Admin\NotificationController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -113,6 +115,12 @@ Route::middleware('auth')->group(function () {
             Route::patch('/post/{postId}', [SocialController::class, 'updatePost'])->name('post.update');
             Route::get('/status', [SocialController::class, 'getSocialStatus'])->name('status');
         });
+
+        // Push Subscriptions
+        Route::prefix('push')->name('push.')->group(function () {
+            Route::post('/subscribe', [PushSubscriptionController::class, 'store'])->name('subscribe');
+            Route::post('/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('unsubscribe');
+        });
     });
 
 /*     Route::get('/conquistas', function () {
@@ -143,6 +151,12 @@ Route::middleware('auth')->group(function () {
         Route::prefix('denuncias')->name('reports.')->group(function () {
             Route::get('/', [AdminReportController::class, 'index'])->name('index');
             Route::post('/{report}/resolver', [AdminReportController::class, 'resolve'])->name('resolve');
+        });
+
+        // Notifications Test
+        Route::prefix('notificacoes')->name('notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::post('/teste', [NotificationController::class, 'sendTest'])->name('test');
         });
     });
 });
