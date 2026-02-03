@@ -9,7 +9,7 @@ use OwenIt\Auditing\Auditable as AuditableTrait;
 class Streak extends Model implements Auditable
 {
     use AuditableTrait;
-    protected $fillable = ['goal_id'];
+    protected $fillable = ['goal_id', 'completed_date'];
 
     public function goal()
     {

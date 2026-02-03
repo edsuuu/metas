@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use Carbon\Carbon;
 
 class Goal extends Model implements Auditable
 {
@@ -46,46 +47,52 @@ class Goal extends Model implements Auditable
 
     public function getLastCompletedAtAttribute()
     {
-        // Return Carbon object or null
-        return $this->streaks()->latest()->first()?->created_at;
+        // Return Carbon object (as date) or null using the new completed_date column
+        if ($this->relationLoaded('streaks')) {
+            $latest = $this->streaks->sortByDesc('completed_date')->first();
+            return $latest?->completed_date ? Carbon::parse($latest->completed_date) : null;
+        }
+        $latest = $this->streaks()->orderByDesc('completed_date')->first();
+        return $latest?->completed_date ? Carbon::parse($latest->completed_date) : null;
     }
 
     public function getCurrentStreakAttribute()
     {
-        // Calculate streak dynamically
-        // Use eager loaded streaks if available to avoid N+1 inside loops, 
-        // but if we call streaks(), it returns a query. 
-        // We should check if relation is loaded.
-        
+        // Get streaks using completed_date for proper timezone handling
         $streaks = $this->relationLoaded('streaks') 
-            ? $this->streaks->sortByDesc('created_at') 
-            : $this->streaks()->orderBy('created_at', 'desc')->get();
+            ? $this->streaks->sortByDesc('completed_date') 
+            : $this->streaks()->orderByDesc('completed_date')->get();
 
         if ($streaks->isEmpty()) {
             return 0;
         }
 
-        $streak = 0;
-        $today = now()->startOfDay();
-        $yesterday = now()->subDay()->startOfDay();
-        
-        // Use mapping to just get dates for simpler comparison
-        $dates = $streaks->map(fn($s) => $s->created_at->startOfDay())->unique();
+        // Get unique dates (completed_date is already a DATE, no timezone issues)
+        $dates = $streaks->pluck('completed_date')
+            ->map(fn($d) => Carbon::parse($d)->startOfDay())
+            ->unique()
+            ->values();
+
+        $today = Carbon::today(config('app.timezone'))->startOfDay();
+        $yesterday = Carbon::yesterday(config('app.timezone'))->startOfDay();
         
         $firstDate = $dates->first();
 
+        // If most recent streak is before yesterday, streak is broken
         if ($firstDate->lt($yesterday)) {
             return 0;
         }
 
-        $expectedDate = $firstDate->isToday() ? $today : $yesterday;
+        // Count consecutive days starting from the most recent date
+        $streak = 0;
+        $expectedDate = $firstDate->copy();
 
         foreach ($dates as $date) {
             if ($date->eq($expectedDate)) {
                 $streak++;
                 $expectedDate->subDay();
             } else {
-                break;
+                break; // Gap found, stop counting
             }
         }
 

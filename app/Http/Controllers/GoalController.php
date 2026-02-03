@@ -56,23 +56,32 @@ class GoalController extends Controller
     public function completeStreak($id)
     {
         try {
+            DB::beginTransaction();
+
             /** @var \App\Models\Goal $goal */
             $goal = Goal::query()
                 ->where('user_id', Auth::id())
+                ->lockForUpdate()
                 ->findOrFail($id);
 
             if (!$goal->is_streak_enabled) {
+                DB::rollBack();
                 return redirect()->back()->withErrors(['message' => 'Esta meta não possui sistema de ofensivas.']);
             }
 
+            // Re-check after lock to prevent race condition
             if ($goal->last_completed_at && $goal->last_completed_at->isToday()) {
+                DB::rollBack();
                 return redirect()->back()->withErrors(['message' => 'Você já completou sua meta hoje!']);
             }
 
-            DB::beginTransaction();
+            // Record Streak (Append Only) - returns null if already completed today
+            $streak = $this->streakService->recordStreak($goal);
 
-            // Record Streak (Append Only)
-            $this->streakService->recordStreak($goal);
+            if ($streak === null) {
+                DB::rollBack();
+                return redirect()->back()->withErrors(['message' => 'Você já completou sua meta hoje!']);
+            }
 
             // Refresh goal to get updated streak count
             $goal->refresh();

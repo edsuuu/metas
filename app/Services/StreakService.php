@@ -13,27 +13,34 @@ class StreakService
 {
     /**
      * Record a streak for a goal.
+     * Returns the streak (new or existing) or null if already completed today.
      *
      * @param Goal $goal
-     * @return Streak
+     * @return Streak|null
      */
-    public function recordStreak(Goal $goal)
+    public function recordStreak(Goal $goal): ?Streak
     {
-        return DB::transaction(function () use ($goal) {
-            // Create streak record (Append Only)
+        $today = Carbon::today(config('app.timezone'))->toDateString();
+
+        try {
+            // Try to create a streak for today
+            // Unique constraint (goal_id, completed_date) will prevent duplicates
             $streak = Streak::create([
                 'goal_id' => $goal->id,
+                'completed_date' => $today,
             ]);
-
-            // Update goal's aggregate streak
-            // Now fully calculated dynamically in Goal model via Accessor.
             
-            Log::info("Recorded streak for Goal {$goal->id}.");
+            Log::info("Recorded streak for Goal {$goal->id} on {$today}.");
 
             return $streak;
-
-            return $streak;
-        });
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Unique constraint violation - streak already exists for today
+            if ($e->getCode() === '23000') {
+                Log::info("Streak already exists for Goal {$goal->id} on {$today}. Skipping.");
+                return null;
+            }
+            throw $e; // Re-throw other exceptions
+        }
     }
 
     /**
@@ -54,14 +61,14 @@ class StreakService
     public function getGlobalStreak(User $user): int
     {
         // Get all unique dates where user completed a goal
-        // Join streaks with goals to filter by user
+        // Using the new completed_date column for accurate timezone-aware calculations
         $dates = Streak::whereHas('goal', function ($query) use ($user) {
             $query->where('user_id', $user->id);
         })
-        ->selectRaw('DATE(created_at) as date')
+        ->select('completed_date')
         ->distinct()
-        ->orderBy('date', 'desc')
-        ->pluck('date')
+        ->orderByDesc('completed_date')
+        ->pluck('completed_date')
         ->map(function ($date) {
             return Carbon::parse($date)->startOfDay();
         });
@@ -70,35 +77,19 @@ class StreakService
             return 0;
         }
 
-        $streak = 0;
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
-        
-        // Check if the most recent date is today or yesterday
-        // If the most recent completion was before yesterday, streak is broken (0)
-        // Unless we want to show the streak "so far" even if broken today? 
-        // Standard is: if you missed yesterday, it is 0.
-        // But if you did yesterday, and haven't done today, it is X.
-        // If you did today, it is X+1.
+        $today = Carbon::today(config('app.timezone'))->startOfDay();
+        $yesterday = Carbon::yesterday(config('app.timezone'))->startOfDay();
         
         $firstDate = $dates->first();
         
+        // If most recent streak is before yesterday, streak is broken
         if ($firstDate->lt($yesterday)) {
             return 0;
         }
 
-        // Iterate dates to count consecutive days
-        // We start checking from Today. 
-        // If $firstDate is Today, streak includes today.
-        // If $firstDate is Yesterday, streak is valid but doesn't include today (yet). 
-        // Actually the loop will just count backwards.
-        
-        // Normalized expectation: 
-        // [Today, Yesterday, DayBefore] -> 3
-        // [Yesterday, DayBefore] -> 2
-        // [Today, DayBefore] -> 1 (Yesterday missing)
-        
-        $expectedDate = $firstDate->isToday() ? $today : $yesterday;
+        // Count consecutive days starting from the most recent date
+        $streak = 0;
+        $expectedDate = $firstDate->copy();
 
         foreach ($dates as $date) {
             if ($date->eq($expectedDate)) {
