@@ -55,6 +55,14 @@ class SupportTicketController extends Controller
         $email = session('support_email');
         $isVerified = session('support_verified', false);
         
+        if (auth()->check()) {
+            $email = auth()->user()->email;
+            $isVerified = true;
+            
+            // Ensure session is synced for other methods that might rely on it
+            session(['support_email' => $email, 'support_verified' => true]);
+        }
+        
         $tickets = [];
 
         if ($isVerified && $email) {

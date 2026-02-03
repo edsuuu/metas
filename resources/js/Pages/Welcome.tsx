@@ -1,22 +1,24 @@
-import { useRef, useEffect } from 'react';
-import { Link, Head } from '@inertiajs/react';
-import { PageProps } from '@/types';
-import PublicNavbar from '@/Components/PublicNavbar';
-import Footer from '@/Components/Footer';
-import AnimatedCounter from '@/Components/AnimatedCounter';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useRef, useEffect } from "react";
+import { Link, Head } from "@inertiajs/react";
+import { PageProps } from "@/types";
+import PublicNavbar from "@/Components/PublicNavbar";
+import Footer from "@/Components/Footer";
+import AnimatedCounter from "@/Components/AnimatedCounter";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
 
-export default function Welcome({ auth }: PageProps<{ laravelVersion: string, phpVersion: string }>) {
+export default function Welcome({
+    auth,
+}: PageProps<{ laravelVersion: string; phpVersion: string }>) {
     const mainContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         // Force scroll to top on refresh
-        window.history.scrollRestoration = 'manual';
+        window.history.scrollRestoration = "manual";
         window.scrollTo(0, 0);
 
         const ctx = gsap.context(() => {
@@ -26,14 +28,14 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                 opacity: 0,
                 duration: 0.6,
                 stagger: 0.1,
-                ease: "power2.out"
+                ease: "power2.out",
             });
 
             gsap.from(".hero-image", {
                 y: 30,
                 opacity: 0,
                 duration: 0.8,
-                ease: "power2.out"
+                ease: "power2.out",
             });
 
             // Stats cards reveal - simple fade
@@ -46,7 +48,7 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                 opacity: 0,
                 duration: 0.6,
                 stagger: 0.1,
-                ease: "power2.out"
+                ease: "power2.out",
             });
 
             // Features cards - removed animation for stability
@@ -61,7 +63,7 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                 y: 20,
                 opacity: 0,
                 duration: 0.6,
-                ease: "power2.out"
+                ease: "power2.out",
             });
 
             ScrollTrigger.refresh();
@@ -93,29 +95,43 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                                         🚀 Gestão de Metas Reimaginada
                                     </span>
                                     <h1 className="text-[#111815] dark:text-white text-5xl md:text-6xl font-black leading-[1.1] tracking-tight">
-                                        Conquiste seus maiores objetivos, <span className="text-primary italic">um passo de cada vez</span>
+                                        Conquiste seus maiores objetivos,{" "}
+                                        <span className="text-primary italic">
+                                            um passo de cada vez
+                                        </span>
                                     </h1>
                                     <p className="text-lg text-gray-600 dark:text-gray-400 max-w-[500px]">
-                                        O Everest ajuda você a transformar sonhos complexos em micro-tarefas acionáveis. Comece sua escalada hoje e alcance o topo da sua produtividade.
+                                        O Everest ajuda você a transformar
+                                        sonhos complexos em micro-tarefas
+                                        acionáveis. Comece sua escalada hoje e
+                                        alcance o topo da sua produtividade.
                                     </p>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <Link
-                                        href={route('register')}
+                                        href={route("register")}
                                         className="flex min-w-[200px] cursor-pointer items-center justify-center rounded-full h-14 px-8 bg-primary text-[#111815] text-lg font-bold shadow-xl shadow-primary/30 hover:scale-105 transition-all"
                                     >
-                                        Começar teste grátis de 14 dias
+                                        Crie sua conta agora
                                     </Link>
                                 </div>
                                 <div className="flex items-center gap-4 mt-2">
                                     <div className="flex -space-x-2">
                                         {[1, 2, 3].map((i) => (
-                                            <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
-                                                <img alt="Avatar" src={`https://i.pravatar.cc/100?img=${i + 10}`} />
+                                            <div
+                                                key={i}
+                                                className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 overflow-hidden"
+                                            >
+                                                <img
+                                                    alt="Avatar"
+                                                    src={`https://i.pravatar.cc/100?img=${i + 10}`}
+                                                />
                                             </div>
                                         ))}
                                     </div>
-                                    <p className="text-sm font-medium text-gray-500">Junte-se a mais de 10.000 usuários</p>
+                                    <p className="text-sm font-medium text-gray-500">
+                                        Junte-se a mais de 10.000 usuários
+                                    </p>
                                 </div>
                             </div>
                             <div className="relative hero-image">
@@ -134,7 +150,9 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                                         <div className="grid grid-cols-3 gap-3">
                                             <div className="col-span-1 h-32 bg-white dark:bg-gray-800 rounded-lg p-3 flex flex-col items-center justify-center gap-2 border border-gray-100 dark:border-gray-700 shadow-sm">
                                                 <div className="size-16 rounded-full border-4 border-primary border-t-transparent flex items-center justify-center">
-                                                    <span className="text-xs font-bold">78%</span>
+                                                    <span className="text-xs font-bold">
+                                                        78%
+                                                    </span>
                                                 </div>
                                                 <div className="h-2 w-12 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                                             </div>
@@ -149,7 +167,9 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                                         </div>
                                         <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm p-4">
                                             <div className="flex items-center gap-3 mb-4">
-                                                <span className="material-symbols-outlined text-orange-500 font-bold">local_fire_department</span>
+                                                <span className="material-symbols-outlined text-orange-500 font-bold">
+                                                    local_fire_department
+                                                </span>
                                                 <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
                                             </div>
                                             <div className="space-y-3">
@@ -159,7 +179,9 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                                                 </div>
                                                 <div className="flex items-center gap-3">
                                                     <div className="size-5 rounded-md bg-primary flex items-center justify-center">
-                                                        <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                                                        <span className="material-symbols-outlined text-white text-[14px]">
+                                                            check
+                                                        </span>
                                                     </div>
                                                     <div className="h-3 w-48 bg-gray-100 dark:bg-gray-700 rounded-full"></div>
                                                 </div>
@@ -171,23 +193,39 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                         </div>
                     </section>
 
-                    <section className="w-full bg-white dark:bg-background-dark py-12 stats-section" id="stats">
+                    <section
+                        className="w-full bg-white dark:bg-background-dark py-12 stats-section"
+                        id="stats"
+                    >
                         <div className="max-w-[1200px] mx-auto px-4 md:px-10">
                             <div className="flex flex-wrap gap-6 justify-center">
                                 <div className="flex min-w-[200px] flex-1 flex-col items-center gap-2 rounded-xl p-8 border border-[#dbe6e1] dark:border-gray-800 bg-background-light dark:bg-gray-800/50 stats-card">
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Usuários Ativos</p>
+                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                        Usuários Ativos
+                                    </p>
                                     <p className="text-[#111815] dark:text-white tracking-light text-4xl font-black leading-tight">
-                                        <AnimatedCounter end={10000} suffix="+" />
+                                        <AnimatedCounter
+                                            end={10000}
+                                            suffix="+"
+                                        />
                                     </p>
                                 </div>
                                 <div className="flex min-w-[200px] flex-1 flex-col items-center gap-2 rounded-xl p-8 border border-[#dbe6e1] dark:border-gray-800 bg-background-light dark:bg-gray-800/50 stats-card">
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Metas Concluídas</p>
+                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                        Metas Concluídas
+                                    </p>
                                     <p className="text-[#111815] dark:text-white tracking-light text-4xl font-black leading-tight">
-                                        <AnimatedCounter end={1.2} decimals={1} suffix="M" />
+                                        <AnimatedCounter
+                                            end={1.2}
+                                            decimals={1}
+                                            suffix="M"
+                                        />
                                     </p>
                                 </div>
                                 <div className="flex min-w-[200px] flex-1 flex-col items-center gap-2 rounded-xl p-8 border border-[#dbe6e1] dark:border-gray-800 bg-background-light dark:bg-gray-800/50 stats-card">
-                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Taxa de Sucesso</p>
+                                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                        Taxa de Sucesso
+                                    </p>
                                     <p className="text-[#111815] dark:text-white tracking-light text-4xl font-black leading-tight">
                                         <AnimatedCounter end={94} suffix="%" />
                                     </p>
@@ -195,32 +233,64 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                             </div>
                         </div>
                     </section>
-                    
-                    <section className="w-full max-w-[1200px] px-4 md:px-10 py-20 features-section" id="features">
+
+                    <section
+                        className="w-full max-w-[1200px] px-4 md:px-10 py-20 features-section"
+                        id="features"
+                    >
                         <div className="flex flex-col gap-16 items-center">
                             <div className="flex flex-col gap-4 text-center max-w-[800px]">
-                                <h2 className="text-primary font-bold tracking-widest uppercase text-sm">Motor de Alta Performance</h2>
+                                <h2 className="text-primary font-bold tracking-widest uppercase text-sm">
+                                    Motor de Alta Performance
+                                </h2>
                                 <h1 className="text-[#111815] dark:text-white tracking-tight text-4xl md:text-5xl font-black leading-tight">
                                     Quebre seus limites, não seu foco
                                 </h1>
                                 <p className="text-gray-600 dark:text-gray-400 text-lg">
-                                    Nosso sistema é projetado para manter você avançando com ferramentas baseadas em psicologia que eliminam a procrastinação.
+                                    Nosso sistema é projetado para manter você
+                                    avançando com ferramentas baseadas em
+                                    psicologia que eliminam a procrastinação.
                                 </p>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
                                 {[
-                                    { icon: 'bar_chart', title: 'Insights Semanais', desc: 'Reflexão baseada em dados sobre seu progresso para otimizar seu desempenho toda segunda-feira de manhã.' },
-                                    { icon: 'check_circle', title: 'Micro-tarefas', desc: 'Produtividade baseada em psicologia para evitar o burnout e manter o ritmo ao dividir grandes objetivos.' },
-                                    { icon: 'sync', title: 'Metas Recorrentes', desc: 'Construa hábitos que duram para sempre com cronogramas recorrentes automatizados e lembretes.' },
-                                    { icon: 'local_fire_department', title: 'Gamificação', desc: 'Mantenha a motivação com recompensas, marcos visuais e contadores de chamas que rastreiam sua constância.' }
+                                    {
+                                        icon: "bar_chart",
+                                        title: "Insights Semanais",
+                                        desc: "Reflexão baseada em dados sobre seu progresso para otimizar seu desempenho toda segunda-feira de manhã.",
+                                    },
+                                    {
+                                        icon: "check_circle",
+                                        title: "Micro-tarefas",
+                                        desc: "Produtividade baseada em psicologia para evitar o burnout e manter o ritmo ao dividir grandes objetivos.",
+                                    },
+                                    {
+                                        icon: "sync",
+                                        title: "Metas Recorrentes",
+                                        desc: "Construa hábitos que duram para sempre com cronogramas recorrentes automatizados e lembretes.",
+                                    },
+                                    {
+                                        icon: "local_fire_department",
+                                        title: "Gamificação",
+                                        desc: "Mantenha a motivação com recompensas, marcos visuais e contadores de chamas que rastreiam sua constância.",
+                                    },
                                 ].map((feature, i) => (
-                                    <div key={i} className="flex flex-col gap-6 rounded-xl border border-[#dbe6e1] dark:border-gray-800 bg-white dark:bg-gray-800/30 p-8 hover:border-primary/50 transition-all group feature-card">
+                                    <div
+                                        key={i}
+                                        className="flex flex-col gap-6 rounded-xl border border-[#dbe6e1] dark:border-gray-800 bg-white dark:bg-gray-800/30 p-8 hover:border-primary/50 transition-all group feature-card"
+                                    >
                                         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                            <span className="material-symbols-outlined">{feature.icon}</span>
+                                            <span className="material-symbols-outlined">
+                                                {feature.icon}
+                                            </span>
                                         </div>
                                         <div className="flex flex-col gap-2">
-                                            <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight">{feature.title}</h2>
-                                            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{feature.desc}</p>
+                                            <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight">
+                                                {feature.title}
+                                            </h2>
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+                                                {feature.desc}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -231,19 +301,31 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                     <section className="w-full bg-background-light dark:bg-background-dark/50 py-24 overflow-hidden">
                         <div className="max-w-[1200px] mx-auto px-4 md:px-10 flex flex-col gap-12 lg:flex-row items-center">
                             <div className="flex flex-col gap-6 lg:w-1/2">
-                                <h2 className="text-[#111815] dark:text-white text-4xl font-black leading-tight">Experimente o auge da produtividade pessoal</h2>
+                                <h2 className="text-[#111815] dark:text-white text-4xl font-black leading-tight">
+                                    Experimente o auge da produtividade pessoal
+                                </h2>
                                 <p className="text-gray-600 dark:text-gray-400 text-lg">
-                                    O Everest não é apenas uma lista de tarefas. É um motor de conquista de metas que prioriza sua energia mental e foca seu tempo no que realmente importa.
+                                    O Everest não é apenas uma lista de tarefas.
+                                    É um motor de conquista de metas que
+                                    prioriza sua energia mental e foca seu tempo
+                                    no que realmente importa.
                                 </p>
                                 <ul className="flex flex-col gap-4">
                                     {[
-                                        'Matriz de Priorização',
-                                        'Lembretes de Pausas Conscientes',
-                                        'Sincronização entre todos os dispositivos'
+                                        "Matriz de Priorização",
+                                        "Lembretes de Pausas Conscientes",
+                                        "Sincronização entre todos os dispositivos",
                                     ].map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3">
-                                            <span className="material-symbols-outlined text-primary">verified</span>
-                                            <span className="font-bold">{item}</span>
+                                        <li
+                                            key={i}
+                                            className="flex items-center gap-3"
+                                        >
+                                            <span className="material-symbols-outlined text-primary">
+                                                verified
+                                            </span>
+                                            <span className="font-bold">
+                                                {item}
+                                            </span>
                                         </li>
                                     ))}
                                 </ul>
@@ -253,10 +335,16 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                                     <div className="bg-gradient-to-tr from-primary to-blue-400 p-8 rounded-lg shadow-2xl rotate-3 scale-95 opacity-50 absolute inset-0"></div>
                                     <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 border border-[#dbe6e1] dark:border-gray-700">
                                         <div className="flex justify-between items-center mb-6">
-                                            <h3 className="font-black text-xl">Escalada de Hoje</h3>
+                                            <h3 className="font-black text-xl">
+                                                Escalada de Hoje
+                                            </h3>
                                             <div className="flex items-center gap-1 bg-primary/20 px-3 py-1 rounded-full">
-                                                <span className="material-symbols-outlined text-orange-500 text-sm font-bold">local_fire_department</span>
-                                                <span className="text-xs font-bold">12 Dias</span>
+                                                <span className="material-symbols-outlined text-orange-500 text-sm font-bold">
+                                                    local_fire_department
+                                                </span>
+                                                <span className="text-xs font-bold">
+                                                    12 Dias
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
@@ -266,7 +354,9 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                                             </div>
                                             <div className="p-4 bg-background-light dark:bg-background-dark rounded-xl flex items-center gap-4">
                                                 <div className="size-6 rounded-full bg-primary flex items-center justify-center text-white">
-                                                    <span className="material-symbols-outlined text-xs">check</span>
+                                                    <span className="material-symbols-outlined text-xs">
+                                                        check
+                                                    </span>
                                                 </div>
                                                 <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded-full opacity-50"></div>
                                             </div>
@@ -285,19 +375,27 @@ export default function Welcome({ auth }: PageProps<{ laravelVersion: string, ph
                         <div className="bg-background-dark text-white rounded-xl p-8 md:p-16 flex flex-col items-center text-center gap-8 relative overflow-hidden cta-content">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32"></div>
                             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
-                            <h2 className="text-4xl md:text-5xl font-black max-w-[700px] relative z-10">Pronto para começar sua escalada?</h2>
+                            <h2 className="text-4xl md:text-5xl font-black max-w-[700px] relative z-10">
+                                Pronto para começar sua escalada?
+                            </h2>
                             <p className="text-gray-400 text-lg max-w-[600px] relative z-10">
-                                Junte-se a milhares de pessoas de alta performance que estão alcançando suas metas com o Everest. Sem necessidade de cartão de crédito para começar seu teste gratuito.
+                                Junte-se a milhares de pessoas de alta
+                                performance que estão alcançando suas metas com
+                                o Everest. Comece agora mesmo a escalar seus
+                                sonhos.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 relative z-10 w-full sm:w-auto">
                                 <Link
-                                    href={route('register')}
+                                    href={route("register")}
                                     className="flex min-w-[200px] cursor-pointer items-center justify-center rounded-full h-14 px-8 bg-primary text-[#111815] text-lg font-bold shadow-xl shadow-primary/30 hover:scale-105 transition-all"
                                 >
-                                    Começar teste grátis de 14 dias
+                                    Crie sua conta agora
                                 </Link>
                             </div>
-                            <p className="text-sm text-gray-500 mt-4 relative z-10">Junte-se a 10.000+ usuários ativos. Cancele a qualquer momento.</p>
+                            <p className="text-sm text-gray-500 mt-4 relative z-10">
+                                Junte-se a 10.000+ usuários ativos. Cancele a
+                                qualquer momento.
+                            </p>
                         </div>
                     </section>
                 </main>

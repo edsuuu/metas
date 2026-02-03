@@ -223,7 +223,13 @@ export default function SocialFeed({ auth, posts: initialPosts, suggestions }: F
         const diffInHours = Math.floor(diffInMinutes / 60);
         if (diffInHours < 24) return `há ${diffInHours}h`;
 
-        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        return date.toLocaleString('pt-BR', { 
+            day: '2-digit', 
+            month: '2-digit', 
+            year: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
     };
 
     const isAdmin = auth.user.roles && auth.user.roles.some((r: any) => r.name === 'Administrador' || r.name === 'Suporte');

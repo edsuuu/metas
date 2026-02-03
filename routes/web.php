@@ -23,9 +23,9 @@ Route::get('/', function () {
 })->name('home');
 
 
-Route::get('/planos', function () {
-    return Inertia::render('Pricing');
-})->name('pricing');
+// Route::get('/planos', function () {
+//     return Inertia::render('Pricing');
+// })->name('pricing');
 
 Route::get('/privacidade', function () {
     return Inertia::render('Legal/DataCollection');

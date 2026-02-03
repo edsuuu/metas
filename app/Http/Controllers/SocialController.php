@@ -171,7 +171,7 @@ class SocialController extends Controller
     /**
      * Perfil social.
      */
-    public function profile(?string $identifier = null): Response
+    public function profile(?string $identifier = null)
     {
         $query = User::query()
             ->with(['experiences', 'goals.microTasks'])
@@ -180,7 +180,9 @@ class SocialController extends Controller
             }]);
 
         if (!$identifier) {
-            $user = $query->findOrFail(auth()->id());
+            $user = auth()->user();
+            $param = $user->nickname ?? $user->id;
+            return to_route('social.profile', ['identifier' => $param]);
         } elseif (is_numeric($identifier)) {
             $user = $query->findOrFail($identifier);
         } else {
