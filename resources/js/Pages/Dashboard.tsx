@@ -235,7 +235,7 @@ export default function Dashboard({ auth, activeGoals, todayCompletions, xp, ran
                                                                 className="w-full h-10 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-orange-500/20"
                                                             >
                                                                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
-                                                                Confirmar Ofensiva Hoje +100 xp
+                                                                Confirmar Ofensiva Hoje +12 xp
                                                             </Link>
                                                         ) : (
                                                             <div className="w-full h-10 bg-green-50 dark:bg-green-900/10 text-green-600 dark:text-green-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-green-100 dark:border-green-900/30">
