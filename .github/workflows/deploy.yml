@@ -19,6 +19,10 @@ jobs:
           script: |
             set -e
 
+            export PATH=$PATH:/usr/local/bin:/usr/bin
+            source ~/.profile || true
+            source ~/.bashrc || true
+
             BASE=/var/www/metas
             RELEASE=$(date +"%Y%m%d_%H%M%S")
 
