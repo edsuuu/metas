@@ -63,9 +63,7 @@ jobs:
             php artisan storage:link || true
 
             echo "== Permissões"
-            chown -R $USER:www-data $BASE/releases/$RELEASE || true
-            chmod -R 775 $BASE/releases/$RELEASE/storage || true
-            chmod -R 775 $BASE/releases/$RELEASE/bootstrap/cache || true
+            chmod -R ug+rwx storage bootstrap/cache
 
             php artisan config:clear || true
             php artisan route:clear || true
