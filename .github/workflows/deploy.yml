@@ -23,6 +23,10 @@ jobs:
             source ~/.profile || true
             source ~/.bashrc || true
 
+            # Carregar NVM se existir
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+
             BASE=/var/www/metas
             RELEASE=$(date +"%Y%m%d_%H%M%S")
 
