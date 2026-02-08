@@ -63,7 +63,8 @@ jobs:
             php artisan storage:link || true
 
             echo "== Permissões"
-            chmod -R ug+rwx storage bootstrap/cache
+            chmod -R ug+rwx bootstrap/cache
+            chmod -R ug+rwx storage/framework storage/logs
 
             php artisan config:clear || true
             php artisan route:clear || true
