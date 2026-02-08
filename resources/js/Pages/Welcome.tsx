@@ -95,7 +95,7 @@ export default function Welcome({
                                         🚀 Gestão de Metas Reimaginada
                                     </span>
                                     <h1 className="text-[#111815] dark:text-white text-5xl md:text-6xl font-black leading-[1.1] tracking-tight">
-                                        Conquiste seus maiores objetivos,{" "}
+                                        123 Conquiste seus maiores objetivos,{" "}
                                         <span className="text-primary italic">
                                             um passo de cada vez
                                         </span>
