@@ -1,75 +1,73 @@
 name: Deploy
 
 on:
-push:
-branches: [ main ]
+  push:
+    branches: [main]
 
 jobs:
-deploy:
-runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
 
-```
-steps:
-  - name: Deploy to server
-    uses: appleboy/ssh-action@v1.2.0
-    with:
-      host: ${{ secrets.SERVER_HOST }}
-      username: ${{ secrets.SERVER_USER }}
-      key: ${{ secrets.SERVER_SSH_KEY }}
-      port: ${{ secrets.SERVER_PORT }}
-      script: |
-        set -e
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e
 
-        BASE=/var/www/metas
-        RELEASE=$(date +"%Y%m%d_%H%M%S")
+            BASE=/var/www/metas
+            RELEASE=$(date +"%Y%m%d_%H%M%S")
 
-        echo "== Criando release $RELEASE"
-        mkdir -p $BASE/releases/$RELEASE
-        cd $BASE/releases/$RELEASE
+            echo "== Criando release $RELEASE"
+            mkdir -p $BASE/releases/$RELEASE
+            cd $BASE/releases/$RELEASE
 
-        git config --global --add safe.directory '*'
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
+            git config --global --add safe.directory '*'
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-        git clone -b main ${{ secrets.REPO_SSH }} .
+            git clone -b main ${{ secrets.REPO_SSH }} .
 
-        echo "== Composer"
-        composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+            echo "== Composer"
+            composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-        echo "== Frontend build"
-        npm ci --no-audit --no-fund
-        npm run build
+            echo "== Frontend build"
+            npm ci --no-audit --no-fund
+            npm run build
 
-        echo "== Links persistentes"
-        ln -s $BASE/shared/.env .env
-        rm -rf storage
-        ln -s $BASE/shared/storage storage
-        rm -rf bootstrap/cache
-        ln -s $BASE/shared/bootstrap/cache bootstrap/cache
+            echo "== Links persistentes"
+            ln -s $BASE/shared/.env .env
+            rm -rf storage
+            ln -s $BASE/shared/storage storage
+            rm -rf bootstrap/cache
+            ln -s $BASE/shared/bootstrap/cache bootstrap/cache
 
-        php artisan storage:link || true
+            php artisan storage:link || true
 
-        echo "== Permissões"
-        chown -R $USER:www-data $BASE/releases/$RELEASE
-        chmod -R 775 $BASE/releases/$RELEASE/storage
-        chmod -R 775 $BASE/releases/$RELEASE/bootstrap/cache
+            echo "== Permissões"
+            chown -R $USER:www-data $BASE/releases/$RELEASE
+            chmod -R 775 $BASE/releases/$RELEASE/storage
+            chmod -R 775 $BASE/releases/$RELEASE/bootstrap/cache
 
-        echo "== Migrations"
-        php artisan migrate --force || true
+            echo "== Migrations"
+            php artisan migrate --force || true
 
-        echo "== Cache"
-        php artisan config:cache
-        php artisan route:cache
-        php artisan view:cache
+            echo "== Cache"
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
 
-        echo "== Ativando release"
-        ln -sfn $BASE/releases/$RELEASE $BASE/current
+            echo "== Ativando release"
+            ln -sfn $BASE/releases/$RELEASE $BASE/current
 
-        echo "== Limpando releases antigos"
-        cd $BASE/releases
-        ls -1dt */ | tail -n +4 | xargs -r rm -rf
+            echo "== Limpando releases antigos"
+            cd $BASE/releases
+            ls -1dt */ | tail -n +4 | xargs -r rm -rf
 
-        echo "== Reiniciando PHP"
-        sudo systemctl restart php8.2-fpm
+            echo "== Reiniciando PHP"
+            sudo systemctl restart php8.2-fpm
 
-        echo "Deploy finalizado!"
-```
+            echo "Deploy finalizado!"
