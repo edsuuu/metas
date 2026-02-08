@@ -53,12 +53,24 @@ jobs:
             rm -rf bootstrap/cache
             ln -s $BASE/shared/bootstrap/cache bootstrap/cache
 
+            # Limpar cache ANTES de qualquer comando artisan
+            echo "== Limpando cache antigo"
+            rm -f $BASE/shared/bootstrap/cache/config.php
+            rm -f $BASE/shared/bootstrap/cache/routes-v7.php
+            rm -f $BASE/shared/bootstrap/cache/services.php
+            rm -f $BASE/shared/bootstrap/cache/packages.php
+
             php artisan storage:link || true
 
             echo "== Permissões"
-            chown -R $USER:www-data $BASE/releases/$RELEASE
-            chmod -R 775 $BASE/releases/$RELEASE/storage
-            chmod -R 775 $BASE/releases/$RELEASE/bootstrap/cache
+            chown -R $USER:www-data $BASE/releases/$RELEASE || true
+            chmod -R 775 $BASE/releases/$RELEASE/storage || true
+            chmod -R 775 $BASE/releases/$RELEASE/bootstrap/cache || true
+
+            php artisan config:clear || true
+            php artisan route:clear || true
+            php artisan view:clear || true
+            php artisan cache:clear || true
 
             echo "== Migrations"
             php artisan migrate --force || true
