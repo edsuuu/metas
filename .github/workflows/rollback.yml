@@ -26,6 +26,11 @@ jobs:
 
             cd $BASE/releases
 
+            echo "===== RELEASES DISPONÍVEIS ====="
+            ls -1dt */
+            echo "===== ATUAL ====="
+            readlink -f $BASE/current
+
             if [ "${{ github.event.inputs.release }}" = "previous" ]; then
               TARGET=$(ls -1dt */ | sed -n '2p' | tr -d '/')
             elif [ "${{ github.event.inputs.release }}" = "latest" ]; then
