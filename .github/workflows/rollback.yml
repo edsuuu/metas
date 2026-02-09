@@ -13,7 +13,7 @@ rollback:
 runs-on: ubuntu-latest
 
 steps:
-  - name: Execute rollback
+  - name: Execute rollback via action
     uses: appleboy/ssh-action@v1.2.0
     with:
       host: ${{ secrets.SERVER_HOST }}
