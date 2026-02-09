@@ -25,9 +25,11 @@ Route::get('/', function () {
 })->name('home');
 
 
-// Route::get('/planos', function () {
-//     return Inertia::render('Pricing');
-// })->name('pricing');
+Route::middleware('guest')->group(function () {
+    Route::get('/planos', function () {
+        return Inertia::render('Pricing');
+    })->name('pricing');
+});
 
 Route::get('/privacidade', function () {
     return Inertia::render('Legal/DataCollection');
@@ -123,9 +125,9 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-/*     Route::get('/conquistas', function () {
+    Route::get('/conquistas', function () {
         return Inertia::render('Achievements');
-    })->name('achievements'); */
+    })->name('achievements');
 
     Route::prefix('perfil')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');

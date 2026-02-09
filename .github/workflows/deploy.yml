@@ -56,7 +56,6 @@ jobs:
             # Limpar cache ANTES de qualquer comando artisan
             echo "== Limpando cache antigo"
             rm -f $BASE/shared/bootstrap/cache/config.php
-            rm -f $BASE/shared/bootstrap/cache/routes-v7.php
             rm -f $BASE/shared/bootstrap/cache/services.php
             rm -f $BASE/shared/bootstrap/cache/packages.php
 

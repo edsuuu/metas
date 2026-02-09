@@ -37,7 +37,22 @@ export default function LegalNavbar({ children }: LegalNavbarProps) {
                 </Link>
 
                 <nav className="hidden md:flex items-center gap-9">
-                    {/* <Link className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors" href={route('pricing')}>Planos</Link> */}
+                    {!auth?.user && (
+                        <Link
+                            className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors"
+                            href={route("pricing")}
+                        >
+                            Planos
+                        </Link>
+                    )}
+                    {auth?.user && (
+                        <Link
+                            className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors"
+                            href={route("achievements")}
+                        >
+                            Conquistas
+                        </Link>
+                    )}
                     <Link
                         className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors"
                         href={route("blog")}
@@ -96,6 +111,22 @@ export default function LegalNavbar({ children }: LegalNavbarProps) {
             {/* Mobile Menu Overlay */}
             {isMenuOpen && (
                 <div className="md:hidden absolute top-full left-0 w-full bg-white dark:bg-background-dark border-b border-[#dbe6e1] dark:border-gray-800 shadow-xl py-4 px-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
+                    {!auth?.user && (
+                        <Link
+                            className="text-[#111815] dark:text-gray-300 text-lg font-medium p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            href={route("pricing")}
+                        >
+                            Planos
+                        </Link>
+                    )}
+                    {auth?.user && (
+                        <Link
+                            className="text-[#111815] dark:text-gray-300 text-lg font-medium p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            href={route("achievements")}
+                        >
+                            Conquistas
+                        </Link>
+                    )}
                     <Link
                         className="text-[#111815] dark:text-gray-300 text-lg font-medium p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                         href={route("blog")}

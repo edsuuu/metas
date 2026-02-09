@@ -1,0 +1,42 @@
+name: Rollback
+
+on:
+workflow_dispatch:
+inputs:
+release:
+description: "latest | previous | nome da release"
+required: true
+default: "previous"
+
+jobs:
+rollback:
+runs-on: ubuntu-latest
+
+steps:
+  - name: Execute rollback
+    uses: appleboy/ssh-action@v1.2.0
+    with:
+      host: ${{ secrets.SERVER_HOST }}
+      username: ${{ secrets.SERVER_USER }}
+      key: ${{ secrets.SERVER_SSH_KEY }}
+      port: ${{ secrets.SERVER_PORT }}
+      script: |
+        set -e
+        BASE=/var/www/metas
+
+        cd $BASE/releases
+
+        if [ "${{ github.event.inputs.release }}" = "previous" ]; then
+          TARGET=$(ls -1dt */ | sed -n '2p' | tr -d '/')
+        elif [ "${{ github.event.inputs.release }}" = "latest" ]; then
+          TARGET=$(ls -1dt */ | head -n 1 | tr -d '/')
+        else
+          TARGET="${{ github.event.inputs.release }}"
+        fi
+
+        echo "Rollback para: $TARGET"
+
+        ln -sfn $BASE/releases/$TARGET $BASE/current
+        sudo systemctl reload php8.4-fpm
+
+        echo "Rollback concluído!"
