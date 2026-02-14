@@ -114,8 +114,8 @@
                                         @endif
                                     </div>
                                     <p class="text-[10px] text-gray-400 flex items-center gap-1 font-bold uppercase">
-                                        <span
-                                            class="material-symbols-outlined text-[12px] text-gray-400">schedule</span>
+                                        <span class="material-symbols-outlined text-gray-400"
+                                            style="font-size: 12px">schedule</span>
                                         {{ $post->created_at->diffForHumans() }}
                                     </p>
                                 </div>

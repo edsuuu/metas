@@ -102,7 +102,7 @@
                                     @endif
                                 </div>
                                 <p class="text-xs text-gray-400 flex items-center gap-1">
-                                    <span class="material-symbols-outlined text-[12px]">schedule</span>
+                                    <span class="material-symbols-outlined" style="font-size: 12px">schedule</span>
                                     {{ $post->created_at->diffForHumans() }}
                                 </p>
                             </div>

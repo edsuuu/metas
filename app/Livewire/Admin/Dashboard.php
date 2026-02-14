@@ -1,25 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Livewire\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Models\SupportTicket;
 use App\Models\SecurityEvent;
-use Inertia\Inertia;
+use App\Models\SupportTicket;
+use App\Models\User;
+use Livewire\Component;
+use Illuminate\View\View;
 
-class DashboardController extends Controller
+class Dashboard extends Component
 {
-    public function index()
+    public function render(): View
     {
         $stats = [
-            'total_users' => User::count(),
+            'total_users' => User::query()->count(),
             'total_supports' => User::role(['Administrador', 'Suporte'])->count(),
-            'pending_tickets' => SupportTicket::where('status', 'pending')->count(),
-            'active_tickets' => SupportTicket::where('status', 'open')->count(),
+            'pending_tickets' => SupportTicket::query()->where('status', 'pending')->count(),
+            'active_tickets' => SupportTicket::query()->where('status', 'open')->count(),
         ];
 
-        $recentActivity = SecurityEvent::with('user')
+        $recentActivity = SecurityEvent::query()
+            ->with('user')
             ->latest()
             ->limit(10)
             ->get()
@@ -34,9 +35,9 @@ class DashboardController extends Controller
                 ];
             });
 
-        return Inertia::render('Admin/Dashboard', [
+        return view('livewire.admin.dashboard', [
             'stats' => $stats,
-            'recentActivity' => $recentActivity
+            'recentActivity' => $recentActivity,
         ]);
     }
 }

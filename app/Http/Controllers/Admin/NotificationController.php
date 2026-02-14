@@ -7,27 +7,12 @@ use App\Models\User;
 use App\Services\WebPushService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class NotificationController extends Controller
 {
     public function __construct(
         private WebPushService $webPushService
     ) {}
-
-    /**
-     * Página de teste de notificações.
-     */
-    public function index(): Response
-    {
-        $vapidPublicKey = config('webpush.vapid.public_key');
-        
-        return Inertia::render('Admin/Notifications/Index', [
-            'vapidPublicKey' => $vapidPublicKey,
-            'isConfigured' => $this->webPushService->isConfigured(),
-        ]);
-    }
 
     /**
      * Envia notificação de teste para o usuário logado.
@@ -38,7 +23,7 @@ class NotificationController extends Controller
         $user = $request->user();
 
         $subscriptionsCount = $user->pushSubscriptions()->count();
-        
+
         if ($subscriptionsCount === 0) {
             return response()->json([
                 'success' => false,
@@ -55,8 +40,8 @@ class NotificationController extends Controller
 
         return response()->json([
             'success' => $sent > 0,
-            'message' => $sent > 0 
-                ? "Push enviado para {$sent} dispositivo(s)!" 
+            'message' => $sent > 0
+                ? "Push enviado para {$sent} dispositivo(s)!"
                 : 'Falha ao enviar push. Verifique os logs.',
             'sent' => $sent,
         ]);
