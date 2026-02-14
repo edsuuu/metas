@@ -63,7 +63,7 @@ export default function PublicNavbar({ auth }: PublicNavbarProps) {
                     </Link>
                     <Link
                         className="text-[#111815] dark:text-gray-300 text-sm font-medium hover:text-primary transition-colors"
-                        href={route("support")}
+                        href={route("support.index")}
                     >
                         Contato
                     </Link>
@@ -144,7 +144,7 @@ export default function PublicNavbar({ auth }: PublicNavbarProps) {
                     </Link>
                     <Link
                         className="text-[#111815] dark:text-gray-300 text-lg font-medium p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                        href={route("support")}
+                        href={route("support.index")}
                     >
                         Contato
                     </Link>

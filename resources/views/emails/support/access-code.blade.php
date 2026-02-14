@@ -69,9 +69,9 @@
         <div style="text-align: center; margin-top: 32px;">
             <p style="font-size: 12px; color: #9ca3af; margin: 0 0 16px 0;">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
             <div style="display: flex; justify-content: center; gap: 24px;">
-                <a href="{{ route('support') }}" style="font-size: 12px; color: #6b7280; text-decoration: underline;">Central de Ajuda</a>
-                <a href="{{ route('terms.intro') }}" style="font-size: 12px; color: #6b7280; text-decoration: underline;">Privacidade</a>
-                <a href="{{ route('terms.intro') }}" style="font-size: 12px; color: #6b7280; text-decoration: underline;">Termos de Uso</a>
+                <a href="{{ route('support.index') }}" style="font-size: 12px; color: #6b7280; text-decoration: underline;">Central de Ajuda</a>
+                <a href="{{ route('legal.privacy') }}" style="font-size: 12px; color: #6b7280; text-decoration: underline;">Privacidade</a>
+                <a href="{{ route('legal.terms.index') }}" style="font-size: 12px; color: #6b7280; text-decoration: underline;">Termos de Uso</a>
             </div>
         </div>
     </div>

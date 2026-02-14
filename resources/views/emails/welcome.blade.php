@@ -116,7 +116,7 @@
                             <!-- Footer Links -->
                             <div style="border-top: 1px solid #dbe6e1; padding-top: 32px;">
                                 <p style="font-size: 12px; color: #9ca3af; margin: 0 0 8px 0;">Se você tiver alguma dúvida, nossa equipe de guias está pronta para ajudar.</p>
-                                <a href="{{ route('support') }}" style="font-size: 12px; font-weight: 700; color: #13ec92; text-decoration: none;">Visitar Central de Ajuda</a>
+                                <a href="{{ route('support.index') }}" style="font-size: 12px; font-weight: 700; color: #13ec92; text-decoration: none;">Visitar Central de Ajuda</a>
                             </div>
                         </td>
                     </tr>

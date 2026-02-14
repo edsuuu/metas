@@ -26,7 +26,7 @@
             <a class="text-[#111815] text-sm font-medium hover:text-primary transition-colors" href="{{ route('blog') }}" wire:navigate>
                 Blog
             </a>
-            <a class="text-[#111815] text-sm font-medium hover:text-primary transition-colors" href="{{ route('support') }}" wire:navigate>
+            <a class="text-[#111815] text-sm font-medium hover:text-primary transition-colors" href="{{ route('support.index') }}" wire:navigate>
                 Contato
             </a>
         </nav>
@@ -74,7 +74,7 @@
         <a class="text-[#111815] text-lg font-medium p-2 hover:bg-gray-100 rounded-lg transition-colors" href="{{ route('blog') }}" wire:navigate>
             Blog
         </a>
-        <a class="text-[#111815] text-lg font-medium p-2 hover:bg-gray-100 rounded-lg transition-colors" href="{{ route('support') }}" wire:navigate>
+        <a class="text-[#111815] text-lg font-medium p-2 hover:bg-gray-100 rounded-lg transition-colors" href="{{ route('support.index') }}" wire:navigate>
             Contato
         </a>
         <div class="h-px bg-gray-100 my-2"></div>

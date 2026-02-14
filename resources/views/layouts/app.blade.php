@@ -19,9 +19,7 @@
     @livewireStyles
 </head>
 <body class="bg-gray-50 text-[#111815] font-sans antialiased">
-    <!-- Navbar -->
-    <!-- Navbar -->
-    <x-navbar />
+<x-navbar />
 {{ $slot }}
 @livewireScripts
 </body>

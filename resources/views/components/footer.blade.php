@@ -12,13 +12,12 @@
             <p class="text-gray-500 text-sm">Capacitando pessoas a alcançarem seu auge desde 2024.</p>
         </div>
         <div class="flex gap-8 text-sm font-medium text-gray-600">
-            <a class="hover:text-primary transition-colors" href="{{ route('privacy') }}" wire:navigate>Privacidade</a>
-            <a class="hover:text-primary transition-colors" href="{{ route('terms') }}" wire:navigate>Termos</a>
-            <a class="hover:text-primary transition-colors" href="{{ route('blog') }}" wire:navigate>Blog</a>
-            <a class="hover:text-primary transition-colors" href="{{ route('support') }}" wire:navigate>Contato</a>
+            <a class="hover:text-primary transition-colors" href="{{ route('legal.privacy') }}" wire:navigate>Privacidade</a>
+            <a class="hover:text-primary transition-colors" href="{{ route('legal.terms.index') }}" wire:navigate>Termos</a>
+            <a class="hover:text-primary transition-colors" href="{{ route('support.index') }}" wire:navigate>Contato</a>
         </div>
     </div>
     <div class="max-w-[1200px] mx-auto mt-12 pt-8 border-t border-gray-100 text-center">
-        <p class="text-xs text-gray-400">© {{ date('Y') }} Everest Technologies Inc. Todos os direitos reservados.</p>
+        <p class="text-xs text-gray-400">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
     </div>
 </footer>

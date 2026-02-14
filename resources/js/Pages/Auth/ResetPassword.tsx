@@ -1,26 +1,32 @@
-import { Head, useForm, Link } from '@inertiajs/react';
-import { FormEventHandler, useEffect } from 'react';
-import PasswordChecklist from '@/Components/PasswordChecklist';
+import { Head, useForm, Link } from "@inertiajs/react";
+import { FormEventHandler, useEffect } from "react";
+import PasswordChecklist from "@/Components/PasswordChecklist";
 
 declare function route(name: string, params?: any, absolute?: boolean): string;
 
-export default function ResetPassword({ token, email }: { token: string, email: string }) {
+export default function ResetPassword({
+    token,
+    email,
+}: {
+    token: string;
+    email: string;
+}) {
     const { data, setData, post, processing, errors, reset } = useForm({
         token: token,
         email: email,
-        password: '',
-        password_confirmation: '',
+        password: "",
+        password_confirmation: "",
     });
 
     useEffect(() => {
         return () => {
-            reset('password', 'password_confirmation');
+            reset("password", "password_confirmation");
         };
     }, []);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('password.store'));
+        post(route("password.store"));
     };
 
     return (
@@ -31,14 +37,29 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                 <div className="max-w-[1200px] mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="size-8 text-primary">
-                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path clipRule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fillRule="evenodd"></path>
+                            <svg
+                                fill="currentColor"
+                                viewBox="0 0 48 48"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    clipRule="evenodd"
+                                    d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z"
+                                    fillRule="evenodd"
+                                ></path>
                             </svg>
                         </div>
-                        <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Everest</h2>
+                        <h2 className="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">
+                            Everest
+                        </h2>
                     </div>
-                    <Link className="text-sm font-medium text-gray-500 hover:text-primary transition-colors flex items-center gap-1" href={route('home')}>
-                        <span className="material-symbols-outlined text-base">arrow_back</span>
+                    <Link
+                        className="text-sm font-medium text-gray-500 hover:text-primary transition-colors flex items-center gap-1"
+                        href={route("home")}
+                    >
+                        <span className="material-symbols-outlined text-base">
+                            arrow_back
+                        </span>
                         Voltar para o início
                     </Link>
                 </div>
@@ -48,73 +69,114 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                 <div className="w-full max-w-[480px] bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-[#dbe6e1] dark:border-gray-700 overflow-hidden">
                     <div className="p-8 md:p-12">
                         <div className="flex flex-col gap-2 mb-8 text-center">
-                            <h1 className="text-[#111815] dark:text-white text-3xl font-black tracking-tight">Crie uma nova senha</h1>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm">Escolha uma senha forte para proteger seu progresso.</p>
+                            <h1 className="text-[#111815] dark:text-white text-3xl font-black tracking-tight">
+                                Crie uma nova senha
+                            </h1>
+                            <p className="text-gray-500 dark:text-gray-400 text-sm">
+                                Escolha uma senha forte para proteger seu
+                                progresso.
+                            </p>
                         </div>
 
                         <form onSubmit={submit} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-bold text-[#111815] dark:text-gray-300 mb-2" htmlFor="email">
+                                <label
+                                    className="block text-sm font-bold text-[#111815] dark:text-gray-300 mb-2"
+                                    htmlFor="email"
+                                >
                                     Email
                                 </label>
                                 <div className="relative">
-                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">mail</span>
-                                    <input 
-                                        id="email" 
-                                        type="email" 
-                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all grayscale opacity-70" 
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">
+                                        mail
+                                    </span>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all grayscale opacity-70"
                                         value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
+                                        onChange={(e) =>
+                                            setData("email", e.target.value)
+                                        }
                                         required
                                         readOnly
                                     />
                                 </div>
-                                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                {errors.email && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.email}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-[#111815] dark:text-gray-300 mb-2" htmlFor="password">
+                                <label
+                                    className="block text-sm font-bold text-[#111815] dark:text-gray-300 mb-2"
+                                    htmlFor="password"
+                                >
                                     Nova senha
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">lock</span>
-                                    <input 
-                                        id="password" 
-                                        type="password" 
-                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all" 
-                                        placeholder="••••••••" 
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">
+                                        lock
+                                    </span>
+                                    <input
+                                        id="password"
+                                        type="password"
+                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all"
+                                        placeholder="••••••••"
                                         value={data.password}
-                                        onChange={(e) => setData('password', e.target.value)}
-                                        required 
+                                        onChange={(e) =>
+                                            setData("password", e.target.value)
+                                        }
+                                        required
                                         autoFocus
                                     />
                                 </div>
-                                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                                {errors.password && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.password}
+                                    </p>
+                                )}
                             </div>
 
                             <div>
-                                <label className="block text-sm font-bold text-[#111815] dark:text-gray-300 mb-2" htmlFor="password_confirmation">
+                                <label
+                                    className="block text-sm font-bold text-[#111815] dark:text-gray-300 mb-2"
+                                    htmlFor="password_confirmation"
+                                >
                                     Confirmar nova senha
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">lock_reset</span>
-                                    <input 
-                                        id="password_confirmation" 
-                                        type="password" 
-                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all" 
-                                        placeholder="••••••••" 
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">
+                                        lock_reset
+                                    </span>
+                                    <input
+                                        id="password_confirmation"
+                                        type="password"
+                                        className="w-full pl-11 pr-4 h-12 rounded-2xl bg-background-light dark:bg-background-dark border-transparent focus:border-primary focus:ring-primary text-sm transition-all"
+                                        placeholder="••••••••"
                                         value={data.password_confirmation}
-                                        onChange={(e) => setData('password_confirmation', e.target.value)}
-                                        required 
+                                        onChange={(e) =>
+                                            setData(
+                                                "password_confirmation",
+                                                e.target.value,
+                                            )
+                                        }
+                                        required
                                     />
                                 </div>
-                                {errors.password_confirmation && <p className="text-red-500 text-xs mt-1">{errors.password_confirmation}</p>}
+                                {errors.password_confirmation && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {errors.password_confirmation}
+                                    </p>
+                                )}
                             </div>
 
                             <PasswordChecklist password={data.password} />
 
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 disabled={processing}
                                 className="w-full cursor-pointer items-center justify-center rounded-full h-12 px-5 bg-primary text-[#111815] text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform mt-2"
                             >
@@ -122,18 +184,28 @@ export default function ResetPassword({ token, email }: { token: string, email: 
                             </button>
                         </form>
                         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8">
-                            Teve problemas? <Link className="text-primary font-bold hover:underline" href={route('support')}>Contate o suporte</Link>
+                            Teve problemas?{" "}
+                            <Link
+                                className="text-primary font-bold hover:underline"
+                                href={route("support.index")}
+                            >
+                                Contate o suporte
+                            </Link>
                         </p>
                     </div>
                     <div className="bg-gray-50 dark:bg-gray-900/50 p-6 text-center border-t border-[#dbe6e1] dark:border-gray-700">
                         <p className="text-xs text-gray-500 leading-relaxed">
-                            Sua segurança é nossa prioridade. Recomendamos não reutilizar senhas de outros sites.
+                            Sua segurança é nossa prioridade. Recomendamos não
+                            reutilizar senhas de outros sites.
                         </p>
                     </div>
                 </div>
             </main>
             <footer className="w-full py-8 px-4 text-center">
-                <p className="text-xs text-gray-400">© 2024 Everest Technologies Inc. Todos os direitos reservados.</p>
+                <p className="text-xs text-gray-400">
+                    © 2024 Everest Technologies Inc. Todos os direitos
+                    reservados.
+                </p>
             </footer>
         </div>
     );

@@ -105,7 +105,7 @@ export default function Authenticated({
                                 )}
                             </Link>
                             <Link
-                                href={route("support")}
+                                href={route("support.index")}
                                 className={`text-sm font-bold border-b-2 transition-colors ${route().current("support") || route().current("support.*") ? "text-primary border-primary" : "text-[#111815] dark:text-gray-300 border-transparent hover:text-primary"}`}
                             >
                                 Suporte
@@ -295,7 +295,7 @@ export default function Authenticated({
                             )}
                         </Link>
                         <Link
-                            href={route("support")}
+                            href={route("support.index")}
                             className={`block w-full pl-3 pr-4 py-2 border-l-4 text-left text-base font-medium transition duration-150 ease-in-out ${route().current("support") || route().current("support.*") ? "border-primary text-primary bg-primary/5 focus:text-primary focus:bg-primary/10 focus:border-primary" : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600"}`}
                         >
                             Suporte

@@ -1,10 +1,4 @@
 @import "tailwindcss";
-/* 
-@layer base {
-    body {
-        font-family: 'Manrope', sans-serif;
-    }
-} */
 
 @theme {
     /*--font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',*/
@@ -13,7 +7,17 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 
     --color-primary: #13ec92;
-    --color-background-light: #f9fafb;
+    --color-secondary: #ff6b6b;
+    --color-accent: #ffd93d;
+    --color-background-light: #f6f8f7;
+    --color-background-dark: #10221a;
+
+    --radius: 1rem;
+    --radius-lg: 2rem;
+    --radius-xl: 3rem;
+
+    /* Force light mode by using a class selector strategy, effectively disabling system preference */
+    --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
 .material-symbols-outlined {

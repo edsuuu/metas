@@ -21,17 +21,9 @@ Route::view('/', 'everest.home')->name('home');
 Route::view('/conquistas', 'everest.achievements')->name('achievements');
 Route::view('/planos', 'everest.plans')->name('pricing');
 
-Route::get('/privacidade', function () {
-    return Inertia::render('Legal/DataCollection');
-})->name('privacy');
+Route::view('/privacidade', 'everest.legal.privacy')->name('legal.privacy');
 
-Route::get('/blog', function () {
-    return Inertia::render('Blog/Index');
-})->name('blog');
-
-Route::get('/suporte', function () {
-    return Inertia::render('Support/Index');
-})->name('support');
+Route::view('/blog', 'everest.blog')->name('blog');
 
 
 // Social Auth
@@ -41,40 +33,24 @@ Route::prefix('oauth2/google')->group(function () {
 });
 
 // Legal & Support Pages
-Route::prefix('termos')->group(function () {
-    Route::get('/', function () {
-        return Inertia::render('Legal/Terms');
-    })->name('terms');
-
-    Route::get('/introducao', function () {
-        return Inertia::render(component: 'Legal/TermsIntro');
-    })->name('terms.intro');
-
-    Route::get('/coleta-de-dados', function () {
-        return Inertia::render('Legal/DataCollection');
-    })->name('terms.data-collection');
-
-    Route::get('/seguranca', function () {
-        return Inertia::render('Legal/Security');
-    })->name('terms.security');
-
-    Route::get('/responsabilidades', function () {
-        return Inertia::render('Legal/Responsibilities');
-    })->name('terms.responsibilities');
+Route::prefix('termos')->name('legal.')->group(function () {
+    Route::view('/', 'everest.legal.terms')->name('terms.index');
+    Route::view('/introducao', 'everest.legal.intro')->name('terms.intro');
+    Route::view('/coleta-de-dados', 'everest.legal.privacy')->name('terms.data-collection');
+    Route::view('/seguranca', 'everest.legal.security')->name('terms.security');
+    Route::view('/responsabilidades', 'everest.legal.responsibilities')->name('terms.responsibilities');
 });
 
 Route::get('/files/{uuid}', [FileController::class, 'show'])->name('files.show');
 
+// Support Routes
 Route::prefix('suporte')->name('support.')->group(function () {
-    Route::get('/meus-chamados', [SupportTicketController::class, 'myTickets'])->name('my-tickets');
-    Route::post('/solicitar-acesso', [SupportTicketController::class, 'requestAccess'])->name('access.request');
-    Route::get('/verificar-acesso', [SupportTicketController::class, 'verifyView'])->name('verify.view');
-    Route::post('/verificar-acesso', [SupportTicketController::class, 'verifyCheck'])->name('verify.check');
+    Route::view('/', 'everest.support.index')->name('index');
+    Route::view('/meus-chamados', 'everest.support.my-tickets')->name('my-tickets');
+    Route::view('/verificar-acesso', 'everest.support.verify-access')->name('verify.view');
 
     Route::prefix('chamado')->name('ticket.')->group(function () {
-        Route::post('/', [SupportTicketController::class, 'store'])->name('store');
-        Route::get('/{ticket}', [SupportTicketController::class, 'show'])->name('show');
-        Route::post('/{ticket}/responder', [SupportTicketController::class, 'reply'])->name('reply');
+        Route::view('/{ticket}', 'everest.support.ticket-details')->name('show');
     });
 });
 

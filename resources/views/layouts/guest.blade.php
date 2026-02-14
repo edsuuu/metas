@@ -19,16 +19,15 @@
     @livewireStyles
 </head>
 <body class="bg-gray-50 text-[#111815] font-sans antialiased flex flex-col min-h-screen">
-    <!-- Navbar -->
-    <x-navbar />
+    @unless(request()->routeIs('legal.*'))
+        <x-navbar />
+    @endunless
 
     <main class="flex-1">
         {{ $slot }}
     </main>
 
-    <!-- Footer -->
     <x-footer />
-
     @livewireScripts
 </body>
 </html>
