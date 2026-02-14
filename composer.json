@@ -13,6 +13,7 @@
         "laravel/socialite": "^5.24",
         "laravel/tinker": "^2.10.1",
         "laravellegends/pt-br-validator": "^12.2",
+        "livewire/livewire": "^3.0",
         "lucascudo/laravel-pt-br-localization": "^3.0",
         "minishlink/web-push": "^10.0",
         "opcodesio/log-viewer": "^3.21",

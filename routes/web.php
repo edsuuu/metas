@@ -17,19 +17,9 @@ use App\Http\Controllers\Admin\ReportController as AdminReportController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\Admin\NotificationController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-    ]);
-})->name('home');
-
-
-Route::middleware('guest')->group(function () {
-    Route::get('/planos', function () {
-        return Inertia::render('Pricing');
-    })->name('pricing');
-});
+Route::view('/', 'everest.home')->name('home');
+Route::view('/conquistas', 'everest.achievements')->name('achievements');
+Route::view('/planos', 'everest.plans')->name('pricing');
 
 Route::get('/privacidade', function () {
     return Inertia::render('Legal/DataCollection');
@@ -125,9 +115,6 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::get('/conquistas', function () {
-        return Inertia::render('Achievements');
-    })->name('achievements');
 
     Route::prefix('perfil')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
