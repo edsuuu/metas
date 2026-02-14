@@ -8,7 +8,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" type="image/x-icon" href="{{ asset('images/favicon.ico') }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+
+    @hasSection('title')
+        <title>@yield('title') - {{ config('app.name', 'Everest') }}</title>
+    @else
+        <title>{{ config('app.name', 'Everest') }}</title>
+    @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,15 +27,11 @@
 </head>
 
 <body class="bg-gray-50 text-[#111815] font-sans antialiased flex flex-col min-h-screen">
-    @unless (request()->routeIs('legal.*'))
-        <x-navbar-guest />
-    @endunless
 
-    <main class="flex-1">
+    <main class="flex-1 flex flex-col">
         {{ $slot }}
     </main>
 
-    <x-footer />
     @livewireScripts
 </body>
 
