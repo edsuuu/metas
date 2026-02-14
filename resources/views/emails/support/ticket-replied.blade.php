@@ -66,7 +66,7 @@
                                     Visualizar Resposta Completa
                                 </a>
                                 <p style="font-size: 14px; color: #9ca3af; margin: 0;">
-                                    Você também pode acompanhar todos os seus chamados na <a href="{{ route('support') }}" style="color: #13ec92; font-weight: 700; text-decoration: none;">Central de Ajuda</a>.
+                                    Você também pode acompanhar todos os seus chamados na <a href="{{ route('support.index') }}" style="color: #13ec92; font-weight: 700; text-decoration: none;">Central de Ajuda</a>.
                                 </p>
                             </div>
                         </td>
@@ -80,9 +80,9 @@
                             </p>
                             
                             <div style="margin-bottom: 32px;">
-                                <a href="{{ route('support') }}" style="color: #9ca3af; text-decoration: none; margin: 0 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Base de Conhecimento</a>
-                                <a href="{{ route('terms.intro') }}" style="color: #9ca3af; text-decoration: none; margin: 0 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Privacidade</a>
-                                <a href="{{ route('terms.intro') }}" style="color: #9ca3af; text-decoration: none; margin: 0 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Termos de Uso</a>
+                                <a href="{{ route('support.index') }}" style="color: #9ca3af; text-decoration: none; margin: 0 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Base de Conhecimento</a>
+                                <a href="{{ route('legal.privacy') }}" style="color: #9ca3af; text-decoration: none; margin: 0 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Privacidade</a>
+                                <a href="{{ route('legal.terms.index') }}" style="color: #9ca3af; text-decoration: none; margin: 0 12px; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">Termos de Uso</a>
                             </div>
 
                             <div style="border-top: 1px solid #e5e7eb; padding-top: 24px;">

@@ -78,7 +78,7 @@
                         <td style="background-color: rgba(249, 250, 251, 0.5); padding: 32px; text-align: center;">
                             <p style="font-size: 12px; color: #9ca3af; margin: 0 0 16px 0; line-height: 1.625;">
                                 Dúvidas ou problemas? Nossa equipe de suporte está pronta para ajudar.<br/>
-                                Acesse nossa <a href="{{ route('support') }}" style="color: #13ec92; font-weight: 700; text-decoration: none;">Central de Ajuda</a> ou responda a este e-mail.
+                                Acesse nossa <a href="{{ route('support.index') }}" style="color: #13ec92; font-weight: 700; text-decoration: none;">Central de Ajuda</a> ou responda a este e-mail.
                             </p>
                             
                             <!-- Social/Help Icon Stub -->

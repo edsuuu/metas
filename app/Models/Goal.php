@@ -14,6 +14,7 @@ class Goal extends Model implements Auditable
 
     protected $fillable = [
         'user_id',
+        'uuid',
         'title',
         'category',
         'is_streak_enabled',
@@ -21,6 +22,14 @@ class Goal extends Model implements Auditable
         'deadline',
         'completed_at',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->uuid = (string) str()->uuid();
+        });
+    }
 
     protected $casts = [
         'is_streak_enabled' => 'boolean',
