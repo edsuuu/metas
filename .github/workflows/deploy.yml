@@ -55,6 +55,11 @@ jobs:
 
             # Limpar cache ANTES de qualquer comando artisan
             echo "== Limpando cache antigo"
+            php artisan config:clear || true
+            php artisan route:clear || true
+            php artisan view:clear || true
+            php artisan cache:clear || true
+
             rm -f $BASE/shared/bootstrap/cache/config.php
             rm -f $BASE/shared/bootstrap/cache/services.php
             rm -f $BASE/shared/bootstrap/cache/packages.php
@@ -62,13 +67,9 @@ jobs:
             php artisan storage:link || true
 
             echo "== Permissões"
-            chmod -R ug+rwx bootstrap/cache
-            chmod -R ug+rwx storage/framework storage/logs
-
-            php artisan config:clear || true
-            php artisan route:clear || true
-            php artisan view:clear || true
-            php artisan cache:clear || true
+            sudo chmod -R ug+rwx bootstrap/cache
+            sudo chmod -R ug+rwx storage/framework storage/logs
+            sudo chown -R ${{ secrets.SERVER_USER }}:www-data bootstrap/cache storage
 
             echo "== Migrations"
             php artisan migrate --force || true
