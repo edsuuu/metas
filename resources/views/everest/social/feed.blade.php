@@ -5,5 +5,7 @@
         </h2>
     </x-slot>
 
-    <livewire:social.feed />
+    <div class="max-w-7xl mx-auto py-5 sm:px-6 lg:px-8">
+        <livewire:social.feed />
+    </div>
 </x-app-layout>

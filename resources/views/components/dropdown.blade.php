@@ -34,7 +34,7 @@
         x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
         class="absolute z-50 mt-2 {{ $width }} rounded-2xl shadow-xl border border-gray-100 {{ $alignmentClasses }}"
         style="display: none;" @click="open = false">
-        <div class="rounded-2xl ring-1 ring-black ring-opacity-5 {{ $contentClasses }}">
+        <div class="rounded-2xl  ring-opacity-5 {{ $contentClasses }}">
             {{ $content }}
         </div>
     </div>

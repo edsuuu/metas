@@ -5,6 +5,7 @@ namespace App\Livewire\Social;
 use App\Models\User;
 use App\Models\SocialPost;
 use App\Models\Friendship;
+use App\Services\ExperienceService;
 use App\Services\SocialService;
 use App\Services\StreakService;
 use App\Services\FileService;
@@ -17,13 +18,13 @@ class Profile extends Component
 {
     use WithFileUploads;
 
-    public string $identifier = '';
+    public ?string $identifier = null;
     public ?User $profileUser = null;
     public $avatar;
 
     // Post interaction states
-    public ?int $activeCommentPostId = null;
-    public string $commentContent = '';
+    public array $commentContent = [];
+    public ?int $fullscreenPostId = null;
     public ?string $fullscreenImageUrl = null;
 
     // Modals
@@ -70,20 +71,45 @@ class Profile extends Component
         $socialService->toggleLike($postId);
     }
 
+    protected function rules(): array
+    {
+        return [
+            'editContent' => 'required|string|max:1000',
+            'reportReason' => 'required|string',
+            'avatar' => 'nullable|image|max:2048',
+        ];
+    }
+
+    protected function validationAttributes(): array
+    {
+        return [
+            'editContent' => 'conteúdo do post',
+            'reportReason' => 'motivo da denúncia',
+            'avatar' => 'foto de perfil',
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'required' => 'O campo :attribute é obrigatório.',
+            'max' => 'O campo :attribute não pode ter mais que :max caracteres.',
+            'image' => 'O arquivo deve ser uma imagem.',
+        ];
+    }
+
     public function submitComment(int $postId, SocialService $socialService): void
     {
-        if (empty($this->commentContent)) return;
+        if (empty($this->commentContent[$postId] ?? '')) return;
 
-        $socialService->addComment($postId, $this->commentContent);
-        $this->reset('commentContent');
-        $this->activeCommentPostId = null;
+        $content = $this->commentContent[$postId];
+        $socialService->addComment($postId, $content);
+
+        unset($this->commentContent[$postId]);
         $this->dispatch('toast', message: 'Comentário adicionado!', type: 'success');
     }
 
-    public function toggleComments(int $postId): void
-    {
-        $this->activeCommentPostId = $this->activeCommentPostId === $postId ? null : $postId;
-    }
+
 
     public function toggleFollow(SocialService $socialService): void
     {
@@ -182,7 +208,7 @@ class Profile extends Component
         $this->dispatch('toast', message: 'Post ocultado!', type: 'success');
     }
 
-    public function render(SocialService $socialService, StreakService $streakService): \Illuminate\View\View
+    public function render(SocialService $socialService, StreakService $streakService, ExperienceService $experienceService): \Illuminate\View\View
     {
         $userId = Auth::id();
         $isOwnProfile = $userId === $this->profileUser->id;
@@ -190,11 +216,22 @@ class Profile extends Component
         // Streak info
         $streak = $streakService->getGlobalStreak($this->profileUser);
 
-        // XP info
+        // XP info (Aligned with Dashboard)
+        $currentXp = $this->profileUser->current_xp ?? 0;
+        $level = $experienceService->calculateLevel($currentXp);
+        $nextLevelThreshold = $experienceService->getNextLevelXp($level);
+        $previousLevelThreshold = $level > 1 ? $experienceService->getNextLevelXp($level - 1) : 0;
+
+        $levelXp = $currentXp - $previousLevelThreshold;
+        $levelTarget = $nextLevelThreshold - $previousLevelThreshold;
+        $progressPercentage = $levelTarget > 0 ? (int) min(100, round(($levelXp / $levelTarget) * 100)) : 0;
+
         $xpInfo = [
-            'current' => $this->profileUser->current_xp,
-            'level' => floor($this->profileUser->current_xp / 1000) + 1,
-            'next_level_threshold' => 1000,
+            'current' => $currentXp,
+            'level' => $level,
+            'levelXp' => $levelXp,
+            'levelTarget' => $levelTarget,
+            'progressPercentage' => $progressPercentage,
         ];
 
         // Is following

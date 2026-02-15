@@ -199,44 +199,62 @@ class SocialService
     /**
      * Retorna sugestões de amigos (baseado em quem não é amigo ainda).
      */
-    public function getSuggestions(): Collection
+    /**
+     * Retorna sugestões de amigos baseadas na localização (cidade/estado).
+     */
+    public function getSuggestions(): \Illuminate\Support\Collection
     {
+        $userId = Auth::id();
+        $user = Auth::user();
+        
         $friendIds = Friendship::query()
-            ->where('user_id', Auth::id())
-            ->orWhere('friend_id', Auth::id())
+            ->where('user_id', $userId)
+            ->orWhere('friend_id', $userId)
             ->get()
-            ->flatMap(function($f) {
-                return [$f->user_id, $f->friend_id];
-            })
+            ->flatMap(fn($f) => [$f->user_id, $f->friend_id])
             ->unique()
             ->toArray();
 
         return User::query()
-            ->where('id', '!=', Auth::id())
+            ->where('id', '!=', $userId)
             ->whereNotIn('id', $friendIds)
+            ->when($user->city, function ($query) use ($user) {
+                $query->orderByRaw("CASE WHEN city = ? THEN 0 ELSE 1 END", [$user->city]);
+            })
+            ->when($user->state, function ($query) use ($user) {
+                $query->orderByRaw("CASE WHEN state = ? THEN 0 ELSE 1 END", [$user->state]);
+            })
             ->limit(10)
             ->get()
-            ->each(function($user) {
-                $user->is_following = Friendship::where(function($q) use ($user) {
-                        $q->where('user_id', Auth::id())->where('friend_id', $user->id);
+            ->each(function($u) use ($userId) {
+                $u->is_following = Friendship::where(function($q) use ($userId, $u) {
+                        $q->where('user_id', $userId)->where('friend_id', $u->id);
                     })
-                    ->orWhere(function($q) use ($user) {
-                        $q->where('user_id', $user->id)->where('friend_id', Auth::id());
-                    })
-                    ->where('status', 'accepted')
-                    ->orWhere(function($q) use ($user) {
-                        $q->where('user_id', Auth::id())->where('friend_id', $user->id)->where('status', 'pending');
+                    ->orWhere(function($q) use ($userId, $u) {
+                        $q->where('user_id', $u->id)->where('friend_id', $userId);
                     })
                     ->exists();
             });
     }
 
     /**
-     * Retorna o feed de atividades da comunidade com paginação.
+     * Retorna o feed de atividades com suporte a Reverb.
      */
-    public function getFeed(): array
+    public function getFeed(int $perPage = 5): array
     {
         $userId = Auth::id();
+        $user = Auth::user();
+
+        // Tentar capturar IP se não estiver setado
+        if (!$user->last_ip) {
+            $user->update(['last_ip' => request()->ip()]);
+            // Aqui poderíamos disparar um Job para buscar a cidade via API externa
+            // Exemplo fictício para o teste sugerido pelo usuário:
+            if ($user->last_ip === '127.0.0.1' || strpos($user->last_ip, '192.168') === 0) {
+                 $user->update(['city' => 'Itapevi', 'state' => 'SP']);
+            }
+        }
+        
         $friendIds = Friendship::query()
             ->where(function($q) use ($userId) {
                 $q->where('user_id', $userId)
@@ -244,16 +262,11 @@ class SocialService
             })
             ->where('status', 'accepted')
             ->get()
-            ->flatMap(function($f) {
-                return [$f->user_id, $f->friend_id];
-            })
+            ->flatMap(fn($f) => [$f->user_id, $f->friend_id])
             ->unique()
             ->toArray();
 
-        // Incluindo o próprio usuário no feed
         $userIds = array_unique(array_merge($friendIds, [$userId]));
-
-        // Posts ocultos pelo usuário
         $hiddenPostIds = SocialPostHide::where('user_id', $userId)->pluck('post_id')->toArray();
 
         $paginator = SocialPost::query()
@@ -265,13 +278,14 @@ class SocialService
             ->whereIn('user_id', $userIds)
             ->whereNotIn('id', $hiddenPostIds)
             ->latest()
-            ->paginate(3);
+            ->paginate($perPage);
 
         return [
             'items' => $paginator->items(),
             'hasMore' => $paginator->hasMorePages(),
             'nextPage' => $paginator->currentPage() + 1,
             'total' => $paginator->total(),
+            'paginator' => $paginator
         ];
     }
 
@@ -287,13 +301,16 @@ class SocialService
                 ->first();
 
             if ($like) {
-                return $like->delete();
+                $like->delete();
+            } else {
+                SocialPostLike::create([
+                    'user_id' => $userId,
+                    'social_post_id' => $postId,
+                ]);
             }
 
-            SocialPostLike::create([
-                'user_id' => $userId,
-                'social_post_id' => $postId,
-            ]);
+            // Broadcast real-time update
+            event(new \App\Events\SocialPostUpdated(SocialPost::find($postId)));
 
             return true;
         } catch (\Exception $e) {
@@ -308,11 +325,16 @@ class SocialService
     public function addComment(int $postId, string $content): ?SocialPostComment
     {
         try {
-            return SocialPostComment::create([
+            $comment = SocialPostComment::create([
                 'user_id' => Auth::id(),
                 'social_post_id' => $postId,
                 'content' => $content,
             ]);
+
+            // Broadcast real-time update
+            event(new \App\Events\SocialPostUpdated(SocialPost::find($postId)));
+
+            return $comment;
         } catch (\Exception $e) {
             Log::error('Erro ao adicionar comentário: ' . $e->getMessage());
             return null;

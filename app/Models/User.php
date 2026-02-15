@@ -28,7 +28,10 @@ class User extends Authenticatable implements Auditable
         'email',
         'password',
         'google_id',
-        // 'avatar_url', // Removed in favor of polymorphic relationship
+        'last_ip',
+        'city',
+        'state',
+        'location_metadata',
     ];
 
     /**
@@ -107,6 +110,7 @@ class User extends Authenticatable implements Auditable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'location_metadata' => 'json',
         ];
     }
 

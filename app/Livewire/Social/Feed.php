@@ -11,6 +11,11 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\Friendship;
+use App\Models\SocialPostHide;
+use Illuminate\View\View;
+use Illuminate\Contracts\Pagination\Paginator;
+use App\Events\SocialPostUpdated;
 
 class Feed extends Component
 {
@@ -32,11 +37,56 @@ class Feed extends Component
 
     public ?int $deletingPostId = null;
 
-    public ?string $fullscreenImageUrl = null;
     public ?int $activeCommentPostId = null;
-    public string $commentContent = '';
+    public ?int $fullscreenPostId = null;
+    public ?string $fullscreenImageUrl = null;
+    public array $commentContent = [];
 
-    protected $listeners = ['loadMore' => 'loadMore'];
+    public function getListeners(): array
+    {
+        return [
+            'loadMore' => 'loadMore',
+            "echo:social-feed,SocialPostUpdated" => 'handlePostUpdated',
+        ];
+    }
+
+    public function handlePostUpdated(array $event): void
+    {
+        // When a post is updated (like, comment, etc.), we refresh to get latest counts
+        // Livewire will only re-render affected parts.
+    }
+
+    protected function rules(): array
+    {
+        return [
+            'content' => 'required|string|max:1000',
+            'image' => 'nullable|image|max:10240',
+
+            'editContent' => 'required|string|max:1000',
+            'reportReason' => 'required|string',
+        ];
+    }
+
+    protected function validationAttributes(): array
+    {
+        return [
+            'content' => 'conteúdo da postagem',
+            'image' => 'imagem',
+
+            'editContent' => 'conteúdo editado',
+            'reportReason' => 'motivo da denúncia',
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'content.required' => 'O que você está pensando? Escreva algo!',
+            'image.max' => 'A imagem deve ter no máximo 10MB.',
+            'editContent.required' => 'O conteúdo não pode ficar vazio.',
+            'reportReason.required' => 'Por favor, selecione um motivo.',
+        ];
+    }
 
     public function loadMore(): void
     {
@@ -45,10 +95,11 @@ class Feed extends Component
 
     public function submitPost(SocialService $socialService, FileService $fileService): void
     {
-        $this->validate([
-            'content' => 'required|string|max:1000',
-            'image' => 'nullable|image|max:10240', // 10MB
-        ]);
+        if (empty($this->content) && empty($this->image)) return;
+
+        if ($this->image) {
+            $this->validateOnly('image');
+        }
 
         try {
             $post = $socialService->createPost($this->content);
@@ -72,12 +123,13 @@ class Feed extends Component
 
     public function submitComment(int $postId, SocialService $socialService): void
     {
-        if (empty($this->commentContent)) return;
+        if (empty($this->commentContent[$postId] ?? '')) return;
 
-        $socialService->addComment($postId, $this->commentContent);
-        $this->reset('commentContent');
-        $this->activeCommentPostId = null;
-        $this->dispatch('toast', message: 'Comentário adicionado!', type: 'success');
+        $socialService->addComment($postId, $this->commentContent[$postId]);
+        
+        // Reset specific comment input
+        unset($this->commentContent[$postId]);
+        $this->dispatch('toast', message: 'Incentivo enviado!', type: 'success');
     }
 
     public function toggleComments(int $postId): void
@@ -100,9 +152,7 @@ class Feed extends Component
 
     public function reportPost(SocialService $socialService): void
     {
-        $this->validate([
-            'reportReason' => 'required|string',
-        ]);
+        $this->validateOnly('reportReason');
 
         if ($socialService->reportPost($this->reportingPostId, $this->reportReason, $this->reportDetails)) {
             $this->showReportSuccess = true;
@@ -122,9 +172,7 @@ class Feed extends Component
 
     public function updatePost(SocialService $socialService): void
     {
-        $this->validate([
-            'editContent' => 'required|string|max:1000',
-        ]);
+        $this->validateOnly('editContent');
 
         if ($socialService->editPost($this->editingPostId, $this->editContent)) {
             $this->dispatch('toast', message: 'Post atualizado!', type: 'success');
@@ -136,43 +184,14 @@ class Feed extends Component
         $this->reset('editContent');
     }
 
-    public function render(SocialService $socialService): \Illuminate\View\View
+    public function render(SocialService $socialService): View
     {
-        $userId = Auth::id();
         $user = Auth::user();
 
-        // Get feed items manually to support infinite scroll with perPage
-        // In a real app we might use pagination, but let's follow the React logic of "allPosts" list
-        $feedData = $socialService->getFeed(); // This returns paginated results based on internal logic
-        
-        // Let's refactor slightly to use perPage directly
-        $friendIds = \App\Models\Friendship::query()
-            ->where(function($q) use ($userId) {
-                $q->where('user_id', $userId)
-                  ->orWhere('friend_id', $userId);
-            })
-            ->where('status', 'accepted')
-            ->get()
-            ->flatMap(fn($f) => [$f->user_id, $f->friend_id])
-            ->unique()
-            ->toArray();
-
-        $userIds = array_unique(array_merge($friendIds, [$userId]));
-        $hiddenPostIds = \App\Models\SocialPostHide::where('user_id', $userId)->pluck('post_id')->toArray();
-
-        $posts = SocialPost::query()
-            ->with(['user', 'files', 'comments.user'])
-            ->withCount(['likes', 'comments'])
-            ->withExists(['likes as is_liked' => function($q) use ($userId) {
-                $q->where('user_id', $userId);
-            }])
-            ->whereIn('user_id', $userIds)
-            ->whereNotIn('id', $hiddenPostIds)
-            ->latest()
-            ->paginate($this->perPage);
+        $feed = $socialService->getFeed($this->perPage);
 
         return view('livewire.social.feed', [
-            'posts' => $posts,
+            'posts' => $feed['paginator'],
             'suggestions' => $socialService->getSuggestions(),
             'isAdmin' => $user->hasAnyRole(['Administrador', 'Suporte']),
         ]);
