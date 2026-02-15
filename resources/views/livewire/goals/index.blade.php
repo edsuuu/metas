@@ -11,7 +11,7 @@
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Buscar metas..."
                     class="w-full h-11 pl-12 pr-4 bg-white border border-[#dbe6e1] rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
             </div>
-            <a href="{{ route('goals.create') }}"
+            <a href="{{ route('goals.form') }}"
                 class="bg-primary text-[#111815] h-11 px-6 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 hover:scale-105 transition-all w-full sm:w-auto shrink-0"
                 wire:navigate>
                 <span class="material-symbols-outlined text-[18px]">add</span>
@@ -40,7 +40,7 @@
                 <h3 class="text-xl font-bold mb-2">Nenhuma meta ativa</h3>
                 <p class="text-gray-500 mb-8 max-w-xs mx-auto">Sua jornada começa com o primeiro passo. Defina um
                     objetivo hoje!</p>
-                <a href="{{ route('goals.create') }}"
+                <a href="{{ route('goals.form') }}"
                     class="inline-flex items-center gap-2 text-primary font-bold hover:underline" wire:navigate>
                     Começar agora
                     <span class="material-symbols-outlined text-sm">arrow_forward</span>

@@ -245,7 +245,7 @@
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-gray-100 space-y-3">
-                    <a href="{{ route('goals.edit', $goal->uuid) }}"
+                    <a href="{{ route('goals.form', $goal->uuid) }}"
                         class="w-full h-12 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                         wire:navigate>
                         <span class="material-symbols-outlined text-lg">edit</span>

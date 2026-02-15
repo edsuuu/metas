@@ -1,8 +1,6 @@
 <div class="bg-gray-50 text-[#111815] min-h-screen flex flex-col">
-    @section('title', $isLogin ? 'Entrar' : 'Cadastro')
-
-    <main class="flex-1 flex items-center justify-center p-4 py-12">
-        <div class="w-full max-w-[480px] bg-white rounded-3xl shadow-2xl border border-[#dbe6e1] overflow-hidden">
+    <main class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-[680px] bg-white rounded-3xl shadow-2xl border border-[#dbe6e1] overflow-hidden">
             <div class="p-8 md:p-12">
                 <div class="flex flex-col gap-2 mb-8 text-center">
                     <h1 class="text-[#111815] text-3xl font-black tracking-tight">
@@ -66,12 +64,11 @@
                                 </label>
                                 <div class="relative">
                                     <span
-                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl z-10 pointer-events-none">
                                         alternate_email
                                     </span>
-                                    <input wire:model="nickname" id="nickname" type="text"
-                                        class="w-full pl-11 pr-4 h-12 rounded-2xl bg-gray-50 border-transparent focus:border-primary focus:ring-primary text-sm transition-all"
-                                        placeholder="ex: alpinista_urbano">
+                                    <x-text-input wire:model="nickname" id="nickname" type="text" class="pl-11"
+                                        placeholder="ex: alpinista_urbano" />
                                 </div>
                                 @error('nickname')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
@@ -86,12 +83,11 @@
                                 </label>
                                 <div class="relative">
                                     <span
-                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl z-10 pointer-events-none">
                                         mail
                                     </span>
-                                    <input wire:model="email" id="email" type="email"
-                                        class="w-full pl-11 pr-4 h-12 rounded-2xl bg-gray-50 border-transparent focus:border-primary focus:ring-primary text-sm transition-all"
-                                        placeholder="seu@email.com">
+                                    <x-text-input wire:model="email" id="email" type="email" class="pl-11"
+                                        placeholder="seu@email.com" />
                                 </div>
                                 @error('email')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
@@ -112,12 +108,11 @@
                                 </div>
                                 <div class="relative">
                                     <span
-                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">
+                                        class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl z-10 pointer-events-none">
                                         lock
                                     </span>
-                                    <input wire:model="password" id="password" type="password"
-                                        class="w-full pl-11 pr-4 h-12 rounded-2xl bg-gray-50 border-transparent focus:border-primary focus:ring-primary text-sm transition-all"
-                                        placeholder="••••••••">
+                                    <x-text-input wire:model="password" id="password" type="password" class="pl-11"
+                                        placeholder="••••••••" />
                                 </div>
                                 @error('password')
                                     <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
@@ -132,13 +127,11 @@
                                         </label>
                                         <div class="relative">
                                             <span
-                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl">
+                                                class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 material-symbols-outlined text-xl z-10 pointer-events-none">
                                                 lock
                                             </span>
-                                            <input wire:model="password_confirmation" id="password_confirmation"
-                                                type="password"
-                                                class="w-full pl-11 pr-4 h-12 rounded-2xl bg-gray-50 border-transparent focus:border-primary focus:ring-primary text-sm transition-all"
-                                                placeholder="••••••••">
+                                            <x-text-input wire:model="password_confirmation" id="password_confirmation"
+                                                type="password" class="pl-11" placeholder="••••••••" />
                                         </div>
                                     </div>
                                 @endif

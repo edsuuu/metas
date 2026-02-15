@@ -17,9 +17,9 @@ class SocialAuthController extends Controller
     {
         try {
             return Socialite::driver('google')->redirect();
-        } catch (\Exception $e) {
-            Log::channel('auth')->error('Google Redirect Error: ' . $e->getMessage(), [
-                'exception' => $e
+        } catch (\Exception $exception) {
+            Log::channel('auth')->error('Google Redirect Error: ' . $exception->getMessage(), [
+                'exception' => $exception
             ]);
             return redirect()->route('login')->withErrors(['error' => 'Não foi possível redirecionar para o Google.']);
         }
@@ -36,7 +36,7 @@ class SocialAuthController extends Controller
             // Case 1: User is already logged in (Linking Account or Sudo Mode)
             if (Auth::check()) {
                 $user = Auth::user();
-                
+
                 if ($user->email === $googleUser->getEmail() || ($user->google_id && $user->google_id === $googleUser->getId())) {
                     // Update google_id if missing
                     if (empty($user->google_id)) {
@@ -48,7 +48,7 @@ class SocialAuthController extends Controller
 
                     return redirect()->intended(route('dashboard'));
                 }
-                
+
                 return redirect()->route('dashboard')->withErrors(['error' => 'A conta Google informada não coincide com seu usuário logado.']);
             }
 
@@ -85,11 +85,11 @@ class SocialAuthController extends Controller
 
             return redirect()->route('register');
 
-        } catch (\Exception $e) {
-            Log::channel('auth')->error('Google Auth Error: ' . $e->getMessage(), [
-                'exception' => $e,
+        } catch (\Exception $exception) {
+            Log::channel('auth')->error('Google Auth Error: ' . $exception->getMessage(), [
+                'exception' => $exception,
             ]);
-            
+
             return redirect()->route('login')->withErrors(['error' => 'Falha na autenticação com o Google. Tente novamente.']);
         }
     }

@@ -37,7 +37,7 @@ class Goal extends Model implements Auditable
         'completed_at' => 'datetime',
     ];
 
-    protected $appends = ['current_streak', 'last_completed_at'];
+    protected $appends = ['current_streak', 'last_completed_at', 'styles', 'progress'];
 
     public function user()
     {
@@ -106,5 +106,61 @@ class Goal extends Model implements Auditable
         }
 
         return $streak;
+    }
+
+    public function getStylesAttribute(): array
+    {
+        return [
+            'saude' => [
+                'icon' => 'fitness_center',
+                'color' => 'text-green-500',
+                'bg' => 'bg-green-100',
+                'bar' => 'bg-green-500',
+            ],
+            'financeiro' => [
+                'icon' => 'payments',
+                'color' => 'text-blue-500',
+                'bg' => 'bg-blue-100',
+                'bar' => 'bg-blue-500',
+            ],
+            'carreira' => [
+                'icon' => 'rocket_launch',
+                'color' => 'text-purple-500',
+                'bg' => 'bg-purple-100',
+                'bar' => 'bg-purple-500',
+            ],
+            'pessoal' => [
+                'icon' => 'psychology',
+                'color' => 'text-orange-500',
+                'bg' => 'bg-orange-100',
+                'bar' => 'bg-orange-500',
+            ],
+        ][$this->category] ?? [
+            'icon' => 'flag',
+            'color' => 'text-primary',
+            'bg' => 'bg-primary/10',
+            'bar' => 'bg-primary',
+        ];
+    }
+
+    public function getProgressAttribute(): int
+    {
+        if (!$this->relationLoaded('microTasks')) {
+            $this->loadCount(['microTasks', 'microTasks as completed_tasks_count' => function ($query) {
+                $query->where('is_completed', true);
+            }]);
+            $total = $this->micro_tasks_count;
+            $completed = $this->completed_tasks_count;
+        } else {
+            $total = $this->microTasks->count();
+            $completed = $this->microTasks->where('is_completed', true)->count();
+        }
+
+        return $total > 0 ? (int) round(($completed / $total) * 100) : 0;
+    }
+
+    public function getTotalTasksAttribute(): int
+    {
+        return $this->relationLoaded('microTasks') ? $this->microTasks->count() : $this->microTasks()->count();
     }
 }

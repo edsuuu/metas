@@ -36,7 +36,7 @@ class User extends Authenticatable implements Auditable
      *
      * @var array
      */
-    protected $appends = ['current_xp', 'avatar_url'];
+    protected $appends = ['current_xp', 'avatar_url', 'streak'];
 
     public function experiences()
     {
@@ -80,6 +80,11 @@ class User extends Authenticatable implements Auditable
     public function getCurrentXpAttribute()
     {
         return (int)$this->experiences()->sum('amount');
+    }
+
+    public function getStreakAttribute(): int
+    {
+        return app(\App\Services\StreakService::class)->getGlobalStreak($this);
     }
 
     /**

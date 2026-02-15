@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::view('/', 'everest.home')->name('home');
 
 
-Route::view('/conquistas', 'everest.achievements')->name('achievements');
+//Route::view('/conquistas', 'everest.achievements')->name('achievements');
 Route::view('/planos', 'everest.plans')->name('pricing');
 Route::view('/privacidade', 'everest.legal.privacy')->name('legal.privacy');
 Route::view('/blog', 'everest.blog')->name('blog');
@@ -39,47 +39,46 @@ Route::prefix('suporte')->name('support.')->group(function () {
     });
 });
 
-Route::middleware('auth')->group(function () {
-    Route::middleware('verified')->group(function () {
-        Route::view('/dashboard', 'everest.dashboard')->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::view('/dashboard', 'everest.dashboard')->name('dashboard');
 
-        // Goals
-        Route::view('/metas', 'everest.goals.index')->name('goals.index');
-        Route::view('/metas/nova', 'everest.goals.form')->name('goals.create');
-        Route::redirect('/metas/create', '/metas/nova');
-        Route::get('/metas/{uuid}', function ($uuid) {
-            return view('everest.goals.show', ['uuid' => $uuid]);
-        })->name('goals.show');
-        Route::get('/metas/{uuid}/editar', function ($uuid) {
-            return view('everest.goals.form', ['uuid' => $uuid]);
-        })->name('goals.edit');
-
-        // Social Routes
-        Route::prefix('social')->name('social.')->group(function () {
-            Route::view('/', 'everest.social.discovery')->name('index');
-            Route::view('/feed', 'everest.social.feed')->name('feed');
-            Route::view('/perfil/{identifier?}', 'everest.social.profile')->name('profile');
-        });
-
-        // Push Subscriptions (endpoints JSON — mantém controller)
-        Route::prefix('push')->name('push.')->group(function () {
-            Route::post('/subscribe', [PushSubscriptionController::class, 'store'])->name('subscribe');
-            Route::post('/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('unsubscribe');
-        });
+    Route::prefix('metas')->name('goals.')->group(function () {
+        Route::view('/', 'everest.goals.index')->name('index');
+        Route::view('/{uuid}', 'everest.goals.show')->name('show');
+        Route::view('manage/{uuid?}', 'everest.goals.form')->name('form');
     });
 
-    Route::view('/perfil', 'everest.profile.edit')->name('profile.edit');
+    Route::prefix('social')->name('social.')->group(function () {
+        Route::view('/', 'everest.social.discovery')->name('index');
+        Route::view('/feed', 'everest.social.feed')->name('feed');
+        Route::view('/perfil/{identifier?}', 'everest.social.profile')->name('profile');
+    });
 
-    // Admin Routes
-    Route::prefix('admin')->name('admin.')->middleware(['audit.admin', 'role_or_permission:Administrador|Suporte'])->group(function () {
-        Route::view('/', 'everest.admin.dashboard')->name('dashboard');
-        Route::view('/usuarios', 'everest.admin.users.index')->name('users.index');
-        Route::view('/tickets', 'everest.admin.tickets.index')->name('tickets.index');
-        Route::view('/tickets/{protocol}', 'everest.admin.tickets.show')->name('tickets.show');
-        Route::view('/denuncias', 'everest.admin.reports.index')->name('reports.index');
-        Route::view('/notificacoes', 'everest.admin.notifications.index')->name('notifications.index');
-        Route::post('/notificacoes/teste', [NotificationController::class, 'sendTest'])->name('notifications.test');
+    Route::prefix('push')->name('push.')->group(function () {
+        Route::post('/subscribe', [PushSubscriptionController::class, 'store'])->name('subscribe');
+        Route::post('/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('unsubscribe');
     });
 });
 
-require __DIR__.'/auth.php';
+Route::prefix('perfil')->name('profile.')->group(function () {
+    Route::view('/', 'everest.profile.edit')->name('edit');
+});
+
+Route::prefix('admin')->name('admin.')->middleware(['audit.admin', 'role_or_permission:Administrador|Suporte'])->group(function () {
+    Route::view('/', 'everest.admin.dashboard')->name('dashboard');
+    Route::view('/usuarios', 'everest.admin.users.index')->name('users.index');
+
+    Route::prefix('tickets')->name('tickets.')->group(function () {
+        Route::view('/', 'everest.admin.tickets.index')->name('index');
+        Route::view('/{protocol}', 'everest.admin.tickets.show')->name('show');
+    });
+
+    Route::view('/denuncias', 'everest.admin.reports.index')->name('reports.index');
+
+    Route::prefix('notificacoes')->name('notifications.')->group(function () {
+        Route::view('/', 'everest.admin.notifications.index')->name('index');
+        Route::post('/teste', [NotificationController::class, 'sendTest'])->name('test');
+    });
+});
+
+require __DIR__ . '/auth.php';

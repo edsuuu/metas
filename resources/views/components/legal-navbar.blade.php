@@ -17,11 +17,11 @@
                     Planos
                 </a>
             @endguest
-            @auth
-                <a class="text-[#111815]  text-sm font-medium hover:text-primary transition-colors" href="{{ route('achievements') }}">
-                    Conquistas
-                </a>
-            @endauth
+{{--            @auth--}}
+{{--                <a class="text-[#111815]  text-sm font-medium hover:text-primary transition-colors" href="{{ route('achievements') }}">--}}
+{{--                    Conquistas--}}
+{{--                </a>--}}
+{{--            @endauth--}}
             <a class="text-[#111815]  text-sm font-medium hover:text-primary transition-colors" href="{{ route('blog') }}">
                 Blog
             </a>
@@ -59,7 +59,7 @@
     </div>
 
     {{-- Mobile Menu Overlay --}}
-    <div x-show="isMenuOpen" 
+    <div x-show="isMenuOpen"
          x-transition:enter="animate-in slide-in-from-top-2"
          class="md:hidden absolute top-full left-0 w-full bg-white  border-b border-[#dbe6e1]  shadow-xl py-4 px-4 flex flex-col gap-4"
          style="display: none;">
@@ -68,11 +68,11 @@
                 Planos
             </a>
         @endguest
-        @auth
-            <a class="text-[#111815]  text-lg font-medium p-2 hover:bg-gray-100  rounded-lg transition-colors" href="{{ route('achievements') }}">
-                Conquistas
-            </a>
-        @endauth
+{{--        @auth--}}
+{{--            <a class="text-[#111815]  text-lg font-medium p-2 hover:bg-gray-100  rounded-lg transition-colors" href="{{ route('achievements') }}">--}}
+{{--                Conquistas--}}
+{{--            </a>--}}
+{{--        @endauth--}}
         <a class="text-[#111815]  text-lg font-medium p-2 hover:bg-gray-100  rounded-lg transition-colors" href="{{ route('blog') }}">
             Blog
         </a>

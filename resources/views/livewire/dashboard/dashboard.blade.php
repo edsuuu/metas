@@ -32,12 +32,11 @@
                     <div class="flex flex-1 items-center gap-3">
                         <div class="relative flex-1 group">
                             <span
-                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">search</span>
-                            <input wire:model.live.debounce.300ms="search" type="text"
-                                placeholder="Pesquisar metas..."
-                                class="w-full h-11 pl-12 pr-4 bg-white/50 backdrop-blur-md border border-[#dbe6e1] rounded-2xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" />
+                                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors z-10 pointer-events-none">search</span>
+                            <x-text-input wire:model.live.debounce.300ms="search" type="text"
+                                placeholder="Pesquisar metas..." class="pl-12 bg-white/50 backdrop-blur-md" />
                         </div>
-                        <a href="{{ route('goals.create') }}"
+                        <a href="{{ route('goals.form') }}"
                             class="bg-primary hover:bg-primary/90 text-gray-900 h-11 px-5 rounded-2xl font-black text-sm transition-all shadow-md shadow-primary/20 flex items-center gap-2 shrink-0"
                             wire:navigate>
                             <span class="material-symbols-outlined text-lg">add_circle</span>
@@ -49,51 +48,13 @@
                 @if ($activeGoals->isNotEmpty())
                     <div class="columns-1 md:columns-2 gap-4">
                         @foreach ($activeGoals as $goal)
-                            @php
-                                $styles = [
-                                    'saude' => [
-                                        'icon' => 'fitness_center',
-                                        'color' => 'text-green-500',
-                                        'bg' => 'bg-green-100',
-                                        'bar' => 'bg-green-500',
-                                    ],
-                                    'financeiro' => [
-                                        'icon' => 'payments',
-                                        'color' => 'text-blue-500',
-                                        'bg' => 'bg-blue-100',
-                                        'bar' => 'bg-blue-500',
-                                    ],
-                                    'carreira' => [
-                                        'icon' => 'rocket_launch',
-                                        'color' => 'text-purple-500',
-                                        'bg' => 'bg-purple-100',
-                                        'bar' => 'bg-purple-500',
-                                    ],
-                                    'pessoal' => [
-                                        'icon' => 'psychology',
-                                        'color' => 'text-orange-500',
-                                        'bg' => 'bg-orange-100',
-                                        'bar' => 'bg-orange-500',
-                                    ],
-                                ][$goal->category] ?? [
-                                    'icon' => 'flag',
-                                    'color' => 'text-primary',
-                                    'bg' => 'bg-primary/10',
-                                    'bar' => 'bg-primary',
-                                ];
-
-                                $totalTasks = $goal->microTasks->count();
-                                $completedTasks = $goal->microTasks->where('is_completed', true)->count();
-                                $progress = $totalTasks > 0 ? (int) round(($completedTasks / $totalTasks) * 100) : 0;
-                            @endphp
-
                             <div x-data="{ expanded: false }"
                                 class="break-inside-avoid mb-4 bg-white rounded-3xl p-6 border transition-all hover:shadow-md {{ $goal->is_streak_enabled ? 'border-orange-200 bg-gradient-to-br from-white to-orange-50/30' : 'border-[#dbe6e1] shadow-sm' }}">
                                 <div class="flex items-start justify-between mb-4">
                                     <div class="flex items-center gap-4">
                                         <div
-                                            class="size-12 rounded-xl {{ $styles['bg'] }} flex items-center justify-center {{ $styles['color'] }}">
-                                            <span class="material-symbols-outlined">{{ $styles['icon'] }}</span>
+                                            class="size-12 rounded-xl {{ $goal->styles['bg'] }} flex items-center justify-center {{ $goal->styles['color'] }}">
+                                            <span class="material-symbols-outlined">{{ $goal->styles['icon'] }}</span>
                                         </div>
                                         <a href="{{ route('goals.show', $goal->uuid) }}" class="group" wire:navigate>
                                             <h4 class="font-bold capitalize group-hover:text-primary transition-colors">
@@ -102,9 +63,9 @@
                                         </a>
                                     </div>
                                     <div class="text-right">
-                                        @if ($totalTasks > 0)
+                                        @if ($goal->total_tasks > 0)
                                             <span
-                                                class="text-sm font-black {{ $styles['color'] }}">{{ $progress }}%</span>
+                                                class="text-sm font-black {{ $goal->styles['color'] }}">{{ $goal->progress }}%</span>
                                         @endif
                                         @if ($goal->is_streak_enabled)
                                             <div
@@ -125,11 +86,11 @@
                                     </div>
                                 </div>
 
-                                @if ($totalTasks > 0)
+                                @if ($goal->total_tasks > 0)
                                     <div
                                         class="w-full h-2.5 bg-gray-200/60 rounded-full mb-6 relative overflow-hidden border border-gray-100">
-                                        <div class="h-full {{ $styles['bar'] }} rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,0,0,0.1)]"
-                                            style="width: {{ $progress }}%"></div>
+                                        <div class="h-full {{ $goal->styles['bar'] }} rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,0,0,0.1)]"
+                                            style="width: {{ $goal->progress }}%"></div>
                                     </div>
                                 @endif
 
@@ -138,7 +99,7 @@
                                         <div class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                                             wire:click="toggleMicroTask({{ $task->id }})">
                                             <input type="checkbox" @checked($task->is_completed)
-                                                class="rounded border-gray-300 {{ str_replace('text-', 'text-', $styles['color']) }} focus:ring-current pointer-events-none" />
+                                                class="rounded border-gray-300 {{ str_replace('text-', 'text-', $goal->styles['color']) }} focus:ring-current pointer-events-none" />
                                             <span
                                                 class="text-sm text-gray-600 {{ $task->is_completed ? 'line-through opacity-60' : '' }}">
                                                 {{ $task->title }}
@@ -151,7 +112,7 @@
                                             <div class="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
                                                 wire:click="toggleMicroTask({{ $task->id }})">
                                                 <input type="checkbox" @checked($task->is_completed)
-                                                    class="rounded border-gray-300 {{ str_replace('text-', 'text-', $styles['color']) }} focus:ring-current pointer-events-none" />
+                                                    class="rounded border-gray-300 {{ str_replace('text-', 'text-', $goal->styles['color']) }} focus:ring-current pointer-events-none" />
                                                 <span
                                                     class="text-sm text-gray-600 {{ $task->is_completed ? 'line-through opacity-60' : '' }}">
                                                     {{ $task->title }}
@@ -160,11 +121,11 @@
                                         @endforeach
                                     </div>
 
-                                    @if ($totalTasks > 3)
+                                    @if ($goal->total_tasks > 3)
                                         <button @click="expanded = !expanded"
                                             class="w-full mt-2 py-2 px-3 flex items-center justify-between text-[11px] font-bold text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all border border-transparent hover:border-primary/10">
                                             <span
-                                                x-text="expanded ? 'Ver menos' : '+ {{ $totalTasks - 3 }} outras tarefas'"></span>
+                                                x-text="expanded ? 'Ver menos' : '+ {{ $goal->total_tasks - 3 }} outras tarefas'"></span>
                                             <span class="material-symbols-outlined text-sm transition-transform"
                                                 :class="expanded ? 'rotate-180' : ''">
                                                 keyboard_arrow_down
@@ -219,7 +180,7 @@
                             </p>
                         </div>
                         @if (!$search)
-                            <a href="{{ route('goals.create') }}"
+                            <a href="{{ route('goals.form') }}"
                                 class="inline-flex h-10 px-6 bg-primary text-[#111815] rounded-full text-xs font-bold items-center hover:scale-105 transition-transform"
                                 wire:navigate>
                                 Criar Minha Primeira Meta

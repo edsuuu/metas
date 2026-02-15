@@ -297,7 +297,7 @@
                                     $q->where('user_id', Auth::id())->where('friend_id', $user->id);
                                 })
                                     ->orWhere(function ($q) use ($user) {
-                                        $q->where('user_id', $user->id())->where('friend_id', Auth::id());
+                                        $q->where('user_id', $user->id)->where('friend_id', Auth::id());
                                     })
                                     ->where('status', 'accepted')
                                     ->exists();

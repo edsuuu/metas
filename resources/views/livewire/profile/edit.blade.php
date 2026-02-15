@@ -16,9 +16,7 @@
         <form wire:submit.prevent="updateProfile" class="space-y-5">
             <div class="space-y-2">
                 <label for="name" class="block text-sm font-bold text-[#111815]">Nome</label>
-                <input id="name" type="text" wire:model="name"
-                    class="w-full h-12 px-4 rounded-xl border-2 focus:ring-primary focus:border-primary transition-all {{ $errors->has('name') ? 'border-red-500' : 'border-gray-100' }}"
-                    required autocomplete="name" />
+                <x-text-input id="name" type="text" wire:model="name" required autocomplete="name" />
                 @error('name')
                     <p class="text-red-500 text-xs font-bold">{{ $message }}</p>
                 @enderror
@@ -26,9 +24,8 @@
 
             <div class="space-y-2">
                 <label for="email" class="block text-sm font-bold text-[#111815]">E-mail</label>
-                <input id="email" type="email" value="{{ Auth::user()->email }}"
-                    class="w-full h-12 px-4 rounded-xl border-2 border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed"
-                    disabled />
+                <x-text-input id="email" type="email" value="{{ Auth::user()->email }}"
+                    class="bg-gray-50 text-gray-400 cursor-not-allowed" disabled />
                 <p class="text-xs text-gray-400 font-medium">O e-mail não pode ser alterado.</p>
             </div>
 
@@ -81,8 +78,7 @@
                 <form wire:submit.prevent="deleteAccount" class="space-y-4">
                     <div class="space-y-2">
                         <label for="password" class="block text-sm font-bold text-[#111815]">Senha</label>
-                        <input id="password" type="password" wire:model="password"
-                            class="w-full h-12 px-4 rounded-xl border-2 focus:ring-primary focus:border-primary transition-all {{ $errors->has('password') ? 'border-red-500' : 'border-gray-100' }}"
+                        <x-text-input id="password" type="password" wire:model="password"
                             placeholder="Digite sua senha" required />
                         @error('password')
                             <p class="text-red-500 text-xs font-bold">{{ $message }}</p>

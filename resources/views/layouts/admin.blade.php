@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-behavior: smooth">
 
-<head>
-    @include('layouts._head', ['title' => config('app.name', 'Laravel') . ' - Admin'])
-</head>
+@include('layouts._head', ['title' => config('app.name', 'Laravel') . ' - Admin'])
 
 <body class="bg-gray-50 text-[#111815] font-sans antialiased min-h-screen" x-data="{ sidebarOpen: false }">
     {{-- Mobile Overlay --}}

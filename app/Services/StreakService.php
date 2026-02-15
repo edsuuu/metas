@@ -20,7 +20,7 @@ class StreakService
      */
     public function recordStreak(Goal $goal): ?Streak
     {
-        $today = Carbon::today(config('app.timezone'))->toDateString();
+        $today = Carbon::today()->toDateString();
 
         try {
             // Try to create a streak for today
@@ -29,7 +29,7 @@ class StreakService
                 'goal_id' => $goal->id,
                 'completed_date' => $today,
             ]);
-            
+
             Log::info("Recorded streak for Goal {$goal->id} on {$today}.");
 
             return $streak;
@@ -79,9 +79,9 @@ class StreakService
 
         $today = Carbon::today(config('app.timezone'))->startOfDay();
         $yesterday = Carbon::yesterday(config('app.timezone'))->startOfDay();
-        
+
         $firstDate = $dates->first();
-        
+
         // If most recent streak is before yesterday, streak is broken
         if ($firstDate->lt($yesterday)) {
             return 0;

@@ -3,12 +3,27 @@
 @layer base {
 
     button,
+    select,
     [role="button"],
     a[href],
-    select,
     summary,
     [type="submit"] {
         cursor: pointer;
+
+        &:focus {
+            outline: none !important;
+        }
+
+        &:focus-visible {
+            outline: none !important;
+            @apply ring-2 ring-primary ring-offset-2;
+        }
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+        outline: none !important;
     }
 }
 

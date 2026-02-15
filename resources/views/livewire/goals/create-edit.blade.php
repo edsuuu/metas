@@ -65,9 +65,8 @@
                             <label class="block text-sm font-bold text-[#111815]">
                                 Qual o nome da sua meta?
                             </label>
-                            <input wire:model="title"
-                                class="w-full h-12 px-4 rounded-xl border-2 focus:ring-primary focus:border-primary transition-all {{ $errors->has('title') ? 'border-red-500' : 'border-gray-100' }}"
-                                placeholder="Ex: Economizar para viagem, Correr 5km..." type="text" maxlength="50" />
+                            <x-text-input wire:model="title" placeholder="Ex: Economizar para viagem, Correr 5km..."
+                                type="text" maxlength="50" />
                             @error('title')
                                 <p class="text-red-500 text-xs font-bold">{{ $message }}</p>
                             @enderror
@@ -135,8 +134,8 @@
                                     </div>
 
                                     <div class="relative">
-                                        <input type="date" wire:model.live="deadline"
-                                            class="w-full h-10 px-4 rounded-lg border text-sm transition-all {{ $deadline ? 'border-blue-200 focus:ring-blue-500' : 'border-gray-200 text-gray-400' }}" />
+                                        <x-text-input type="date" wire:model.live="deadline"
+                                            class="h-10 text-sm {{ $deadline ? 'border-blue-200 focus:ring-blue-500' : 'border-gray-200 text-gray-400' }}" />
                                     </div>
                                 </div>
                             </div>

@@ -15,10 +15,10 @@
 
         <!-- Desktop Navigation -->
         <nav class="hidden md:flex items-center gap-9">
-            <a class="text-[#111815] text-sm font-bold border-b-2 transition-colors {{ request()->routeIs('achievements') ? 'text-primary border-primary' : 'border-transparent hover:text-primary' }}"
-                href="{{ route('achievements') }}" wire:navigate>
-                Conquistas
-            </a>
+{{--            <a class="text-[#111815] text-sm font-bold border-b-2 transition-colors {{ request()->routeIs('achievements') ? 'text-primary border-primary' : 'border-transparent hover:text-primary' }}"--}}
+{{--                href="{{ route('achievements') }}" wire:navigate>--}}
+{{--                Conquistas--}}
+{{--            </a>--}}
             <a class="text-[#111815] text-sm font-bold border-b-2 transition-colors {{ request()->routeIs('blog') ? 'text-primary border-primary' : 'border-transparent hover:text-primary' }}"
                 href="{{ route('blog') }}" wire:navigate>
                 Blog
@@ -74,10 +74,10 @@
         x-transition:leave-end="opacity-0 -translate-y-2"
         class="md:hidden absolute top-full left-0 w-full bg-white border-b border-[#dbe6e1] shadow-xl py-4 px-4 flex flex-col gap-4"
         style="display: none;">
-        <a class="text-[#111815] text-lg font-medium p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 {{ request()->routeIs('achievements') ? 'text-primary bg-primary/5' : '' }}"
-            href="{{ route('achievements') }}" wire:navigate>
-            <span class="material-symbols-outlined">emoji_events</span> Conquistas
-        </a>
+{{--        <a class="text-[#111815] text-lg font-medium p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 {{ request()->routeIs('achievements') ? 'text-primary bg-primary/5' : '' }}"--}}
+{{--            href="{{ route('achievements') }}" wire:navigate>--}}
+{{--            <span class="material-symbols-outlined">emoji_events</span> Conquistas--}}
+{{--        </a>--}}
         <a class="text-[#111815] text-lg font-medium p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 {{ request()->routeIs('blog') ? 'text-primary bg-primary/5' : '' }}"
             href="{{ route('blog') }}" wire:navigate>
             <span class="material-symbols-outlined">article</span> Blog

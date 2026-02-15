@@ -5,5 +5,5 @@
         </h2>
     </x-slot>
 
-    <livewire:goals.show :uuid="$uuid" />
+    <livewire:goals.show :uuid="request()->route('uuid')" />
 </x-app-layout>
