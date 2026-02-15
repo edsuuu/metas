@@ -87,10 +87,11 @@ jobs:
             ls -1dt */ | tail -n +4 | xargs -r rm -rf
 
             echo "== Reiniciando PHP"
-            sudo systemctl restart php8.2-fpm
+            sudo systemctl restart php8.4-fpm
 
             echo "== Reiniciando Reverb"
+            cd $BASE/current
             php artisan reverb:restart || true
-            sudo supervisorctl restart reverb || true
+            sudo supervisorctl restart reverb:* || true
 
             echo "Deploy finalizado!"
