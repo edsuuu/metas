@@ -44,7 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('metas')->name('goals.')->group(function () {
         Route::view('/', 'everest.goals.index')->name('index');
-        Route::view('/{uuid}', 'everest.goals.show')->name('show');
+        Route::view('/show/{uuid}', 'everest.goals.show')->name('show');
         Route::view('manage/{uuid?}', 'everest.goals.form')->name('form');
     });
 
