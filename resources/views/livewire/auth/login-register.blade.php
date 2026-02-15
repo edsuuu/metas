@@ -25,23 +25,6 @@
                     </p>
                 </div>
 
-                <!-- Session Status / Errors -->
-                @if (session('status'))
-                    <div class="mb-4 font-medium text-sm text-green-600 text-center">
-                        {{ session('status') }}
-                    </div>
-                @endif
-
-                @if ($errors->any())
-                    <div class="mb-4 text-sm text-red-600 text-center">
-                        <ul class="list-disc list-inside">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
                 <div class="flex flex-col gap-4">
                     @if (!$socialUser)
                         <a href="{{ route('auth.google') }}"

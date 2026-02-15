@@ -23,7 +23,7 @@ class LogSecurityEvent
     public function handle(object $event): void
     {
         $eventType = $this->getEventType($event);
-        $userId = property_exists($event, 'user') ? $event->user->id : (auth()->check() ? auth()->id() : null);
+        $userId = (property_exists($event, 'user') && $event->user) ? $event->user->id : (auth()->check() ? auth()->id() : null);
         
         $details = [];
         if ($eventType === 'login_failed') {

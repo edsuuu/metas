@@ -14,14 +14,14 @@ class TicketDetails extends Component
     public ?SupportTicket $ticket = null;
     public string $message = '';
 
-    public function mount(int|string $ticket): void
+    public function mount(string $protocol): void
     {
         if (!session('support_verified')) {
             $this->redirect(route('support.my-tickets'), navigate: true);
             return;
         }
 
-        $this->ticket = SupportTicket::query()->findOrFail($ticket);
+        $this->ticket = SupportTicket::where('protocol', $protocol)->firstOrFail();
 
         // Verificação de segurança: ticket pertence ao email verificado
         if ($this->ticket->email !== session('support_email')) {

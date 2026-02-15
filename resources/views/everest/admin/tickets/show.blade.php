@@ -6,5 +6,5 @@
         </div>
     </x-slot>
 
-    <livewire:admin.ticket-show :ticket="request()->route('ticket')" />
+    <livewire:admin.ticket-show :protocol="request()->route('protocol')" />
 </x-admin-layout>

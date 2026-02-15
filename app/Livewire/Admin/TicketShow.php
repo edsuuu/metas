@@ -37,11 +37,9 @@ class TicketShow extends Component
         ];
     }
 
-    public function mount(string $ticket): void
+    public function mount(string $protocol): void
     {
-        $this->ticket = SupportTicket::query()
-            ->where('protocol', $ticket)
-            ->firstOrFail();
+        $this->ticket = SupportTicket::where('protocol', $protocol)->firstOrFail();
     }
 
     public function reply(): void

@@ -11,15 +11,7 @@
                 </p>
             </div>
 
-            @if ($errors->any())
-                <div class="mb-4 text-sm text-red-600 text-center">
-                    <ul class="list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+
 
             <form wire:submit.prevent="submit" class="space-y-4">
                 <input type="hidden" wire:model="token">
@@ -34,8 +26,8 @@
                             mail
                         </span>
                         <input wire:model="email" id="email" type="email"
-                            class="w-full pl-11 pr-4 h-12 rounded-2xl bg-gray-100 border-transparent focus:border-primary focus:ring-primary text-sm transition-all cursor-not-allowed"
-                            readonly>
+                            class="w-full pl-11 pr-4 h-12 rounded-2xl bg-gray-100 text-[#111815] border-transparent focus:border-primary focus:ring-primary text-sm transition-all cursor-not-allowed opacity-75"
+                            readonly disabled>
                     </div>
                     @error('email')
                         <span class="text-red-500 text-xs mt-1">{{ $message }}</span>

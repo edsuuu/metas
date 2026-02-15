@@ -35,7 +35,7 @@ Route::prefix('suporte')->name('support.')->group(function () {
     Route::view('/verificar-acesso', 'everest.support.verify-access')->name('verify.view');
 
     Route::prefix('chamado')->name('ticket.')->group(function () {
-        Route::view('/{ticket}', 'everest.support.ticket-details')->name('show');
+        Route::view('/{protocol}', 'everest.support.ticket-details')->name('show');
     });
 });
 
@@ -75,7 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::view('/', 'everest.admin.dashboard')->name('dashboard');
         Route::view('/usuarios', 'everest.admin.users.index')->name('users.index');
         Route::view('/tickets', 'everest.admin.tickets.index')->name('tickets.index');
-        Route::view('/tickets/{ticket}', 'everest.admin.tickets.show')->name('tickets.show');
+        Route::view('/tickets/{protocol}', 'everest.admin.tickets.show')->name('tickets.show');
         Route::view('/denuncias', 'everest.admin.reports.index')->name('reports.index');
         Route::view('/notificacoes', 'everest.admin.notifications.index')->name('notifications.index');
         Route::post('/notificacoes/teste', [NotificationController::class, 'sendTest'])->name('notifications.test');
