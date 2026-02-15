@@ -45,10 +45,12 @@
         <div class="flex-1 overflow-y-auto pr-2 max-h-[600px] mb-10 custom-scrollbar scroll-smooth"
             x-data="{
                 scrollToBottom() {
-                    this.$refs.messagesEnd?.scrollIntoView({ behavior: 'smooth' })
+                    this.$el.scrollTop = this.$el.scrollHeight;
                 }
             }" x-init="scrollToBottom()"
-            x-effect="$wire.messages.length && setTimeout(() => scrollToBottom(), 100)" wire:poll.5s="$refresh">
+            x-on:message-sent.window="setTimeout(() => scrollToBottom(), 100)"
+            @echo:support.{{ $ticket['id'] }},SupportTicketReplySent="setTimeout(() => scrollToBottom(), 100)"
+            wire:poll.15s.keep-alive>
             <div class="space-y-6 pb-4">
                 @foreach ($messages as $msg)
                     <div class="flex flex-col {{ $msg['is_admin'] ? 'items-start' : 'items-end' }}">
@@ -66,6 +68,20 @@
                         <div
                             class="max-w-[85%] p-5 rounded-3xl shadow-md break-words {{ $msg['is_admin'] ? 'bg-white text-gray-800 border border-[#dbe6e1] rounded-bl-sm' : 'bg-primary text-[#111815] shadow-primary/10 rounded-br-sm' }}">
                             <p class="text-sm leading-relaxed whitespace-pre-wrap break-all">{{ $msg['message'] }}</p>
+
+                            @if (isset($msg['attachment']) && $msg['attachment'])
+                                <div class="mt-3">
+                                    <a href="{{ $msg['attachment'] }}" target="_blank"
+                                        class="block group/img relative overflow-hidden rounded-2xl border border-black/5">
+                                        <img src="{{ $msg['attachment'] }}"
+                                            class="max-h-64 rounded-2xl object-cover hover:scale-105 transition-transform duration-500" />
+                                        <div
+                                            class="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-white">open_in_new</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach
@@ -77,7 +93,7 @@
             <div class="bg-white rounded-3xl border-2 border-primary/20 p-4 md:p-6 shadow-xl shadow-primary/5">
                 <div class="flex items-center gap-2 mb-4">
                     <span class="material-symbols-outlined text-primary">reply</span>
-                    <h3 class="font-bold text-[#111815]">Enviar uma réplica</h3>
+                    <h3 class="font-bold text-[#111815]">Responder</h3>
                 </div>
                 <form wire:submit="reply">
                     <textarea
@@ -86,12 +102,35 @@
                     @error('message')
                         <p class="text-red-500 text-xs font-bold mb-4">{{ $message }}</p>
                     @enderror
-                    <div class="flex justify-end">
+
+                    <div class="mb-6">
+                        <label
+                            class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl cursor-pointer hover:bg-gray-200 transition-colors text-xs font-bold">
+                            <span class="material-symbols-outlined text-sm">image</span>
+                            {{ $attachment ? 'Imagem selecionada' : 'Anexar imagem' }}
+                            <input type="file" wire:model="attachment" class="hidden" accept="image/*">
+                        </label>
+                        @if ($attachment)
+                            <div class="mt-2 relative inline-block">
+                                <img src="{{ $attachment->temporaryUrl() }}"
+                                    class="size-20 rounded-xl object-cover border-2 border-primary" />
+                                <button type="button" wire:click="$set('attachment', null)"
+                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full size-5 flex items-center justify-center shadow-lg">
+                                    <span class="material-symbols-outlined text-[10px]">close</span>
+                                </button>
+                            </div>
+                        @endif
+                        @error('attachment')
+                            <p class="text-red-500 text-xs font-bold mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex justify-end pt-2 border-t border-gray-100">
                         <button
-                            class="w-full md:w-auto px-8 py-3 bg-primary text-[#111815] font-bold rounded-full hover:scale-[1.02] active:scale-95 transition-transform shadow-lg shadow-primary/20 disabled:opacity-50"
-                            disabled wire:loading.attr="disabled">
-                            <span wire:loading.remove>Enviar Réplica</span>
-                            <span wire:loading>Enviando...</span>
+                            class="w-full md:w-auto px-8 py-3 bg-[#111815] text-white font-bold rounded-full hover:scale-[1.02] active:scale-95 transition-transform shadow-lg shadow-black/20 cursor-pointer"
+                            wire:loading.attr="disabled" wire:target="reply">
+                            <span wire:loading.remove wire:target="reply">Enviar Resposta</span>
+                            <span wire:loading wire:target="reply">Enviando...</span>
                         </button>
                     </div>
                 </form>

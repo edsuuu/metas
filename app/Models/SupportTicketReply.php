@@ -15,6 +15,7 @@ class SupportTicketReply extends Model implements Auditable
         'support_ticket_id',
         'user_id',
         'message',
+        'file_id',
         'is_admin',
     ];
 
@@ -26,5 +27,10 @@ class SupportTicketReply extends Model implements Auditable
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function file()
+    {
+        return $this->belongsTo(File::class);
     }
 }

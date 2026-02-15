@@ -89,4 +89,8 @@ jobs:
             echo "== Reiniciando PHP"
             sudo systemctl restart php8.2-fpm
 
+            echo "== Reiniciando Reverb"
+            php artisan reverb:restart || true
+            sudo supervisorctl restart reverb || true
+
             echo "Deploy finalizado!"

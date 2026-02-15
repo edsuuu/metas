@@ -1,4 +1,6 @@
-<aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 bg-white border-r border-[#dbe6e1]">
+<aside
+    class="w-64 h-screen bg-white border-r border-[#dbe6e1] transition-transform duration-300 z-50 fixed inset-y-0 left-0 lg:translate-x-0"
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
     <div class="p-6 flex items-center gap-3 border-b border-[#dbe6e1]">
         <div class="size-8 text-primary">
             <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -7,6 +9,9 @@
             </svg>
         </div>
         <span class="text-xl font-bold tracking-tight">Admin</span>
+        <button x-on:click="sidebarOpen = false" class="lg:hidden ml-auto p-2 text-gray-500">
+            <span class="material-symbols-outlined">close</span>
+        </button>
     </div>
 
     <nav class="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">

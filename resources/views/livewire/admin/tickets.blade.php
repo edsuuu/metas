@@ -56,7 +56,7 @@
                                 </td>
                                 <td class="px-8 py-5">
                                     <span
-                                        class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider {{ $statusColor }}">{{ ucfirst($ticket->status) }}</span>
+                                        class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider {{ $ticket->status_color }}">{{ $ticket->status_label }}</span>
                                 </td>
                                 <td class="px-8 py-5 text-right">
                                     <a href="{{ route('admin.tickets.show', $ticket->protocol) }}"
@@ -86,7 +86,7 @@
                     <div class="p-4 space-y-3">
                         <div class="flex items-center justify-between">
                             <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider {{ $statusColor }}">{{ ucfirst($ticket->status) }}</span>
+                                class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider {{ $ticket->status_color }}">{{ $ticket->status_label }}</span>
                             <span class="text-xs font-bold text-gray-400">{{ $ticket->protocol }}</span>
                         </div>
                         <div>

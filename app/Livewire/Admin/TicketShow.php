@@ -7,18 +7,33 @@ use App\Models\SupportTicketReply;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Attributes\On;
+use Livewire\WithFileUploads;
 use Livewire\Component;
 use Illuminate\View\View;
+use App\Events\SupportTicketReplySent;
+use App\Services\FileService;
 
 class TicketShow extends Component
 {
+    use WithFileUploads;
+
     public SupportTicket $ticket;
     public string $message = '';
+    public $attachment;
+    public bool $showCloseModal = false;
+
+    #[On('echo-private:support.{ticket.id},SupportTicketReplySent')]
+    public function refreshTicket($data = null): void
+    {
+        $this->ticket->refresh();
+    }
 
     protected function rules(): array
     {
         return [
             'message' => 'required|string|min:2',
+            'attachment' => 'nullable|image|max:5120', // 5MB
         ];
     }
 
@@ -27,6 +42,8 @@ class TicketShow extends Component
         return [
             'message.required' => 'A mensagem é obrigatória.',
             'message.min' => 'A mensagem deve ter pelo menos 2 caracteres.',
+            'attachment.image' => 'O anexo deve ser uma imagem.',
+            'attachment.max' => 'A imagem não pode exceder 5MB.',
         ];
     }
 
@@ -34,6 +51,7 @@ class TicketShow extends Component
     {
         return [
             'message' => 'mensagem',
+            'attachment' => 'anexo',
         ];
     }
 
@@ -42,7 +60,7 @@ class TicketShow extends Component
         $this->ticket = SupportTicket::where('protocol', $protocol)->firstOrFail();
     }
 
-    public function reply(): void
+    public function reply(FileService $fileService): void
     {
         $this->validate();
 
@@ -61,6 +79,13 @@ class TicketShow extends Component
                 'is_admin' => true,
             ]);
 
+            if ($this->attachment) {
+                $file = $fileService->upload($this->attachment, $reply, 'support');
+                if ($file) {
+                    $reply->update(['file_id' => $file->id]);
+                }
+            }
+
             $this->ticket->update(['status' => 'in_progress']);
 
             try {
@@ -77,8 +102,11 @@ class TicketShow extends Component
 
             DB::commit();
 
-            $this->reset('message');
-            $this->dispatch('toast', message: 'Resposta enviada!', type: 'success');
+            broadcast(new SupportTicketReplySent($this->ticket->id))->toOthers();
+
+            $this->reset(['message', 'attachment']);
+            $this->dispatch('message-sent');
+            $this->dispatch('toast', message: 'Resposta enviada com sucesso!', type: 'success');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erro ao responder chamado: ' . $e->getMessage());
@@ -99,7 +127,7 @@ class TicketShow extends Component
 
     public function render(): View
     {
-        $this->ticket->load(['replies.user']);
+        $this->ticket->load(['replies.user', 'replies.file']);
 
         return view('livewire.admin.ticket-show');
     }
